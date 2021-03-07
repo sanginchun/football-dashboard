@@ -1,3 +1,5 @@
-node_modules
 .cahce
+
 dist
+
+node_modules
