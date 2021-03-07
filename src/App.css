@@ -1,0 +1,28 @@
+:root {
+  --main-color: #2c7be5;
+  --background-color: #f7f9fb;
+  --almost-white: #eee;
+  --light-grey: #ccc;
+  --medium-grey: #666;
+  --dark-grey: #333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  color: var(--dark-grey);
+}
+
+ul,
+li {
+  list-style: none;
+}
+
+#app {
+  display: flex;
+}

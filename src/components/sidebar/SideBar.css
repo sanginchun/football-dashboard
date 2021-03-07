@@ -1,0 +1,11 @@
+.sidebar {
+  flex: 0.225;
+  height: 100vh;
+  padding: 2rem 0;
+  border: 1px solid red;
+  overflow: hidden;
+}
+
+.sidebar:hover {
+  overflow: auto;
+}

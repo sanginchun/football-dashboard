@@ -1,0 +1,83 @@
+.main-nav {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  padding-left: 4rem;
+  border-top: 1px solid var(--almost-white);
+  color: var(--medium-grey);
+
+  display: flex;
+  position: relative;
+  flex-direction: column;
+}
+
+.main-nav__items {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.main-nav__items.deactive {
+  color: var(--light-grey);
+  pointer-events: none;
+  cursor: default;
+}
+
+.main-nav__items i {
+  position: absolute;
+  margin-left: 10rem;
+  font-size: 0.8rem;
+  transition: transform 0.4s;
+}
+
+.main-nav__items i.show {
+  transform: rotate(-180deg);
+}
+
+.main-nav__nested {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  padding-top: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.main-nav__nested li {
+  cursor: pointer;
+  margin-top: 1.1rem;
+}
+
+.main-nav__nested.hide {
+  display: none;
+}
+
+.main-nav__nested.show {
+  display: block;
+  animation: show-nested 0.3s ease-out;
+}
+
+@keyframes show-nested {
+  from {
+    opacity: 0.5;
+    transform: translateY(-1.25rem);
+  }
+}
+
+/* team */
+.main-nav__nested.team li {
+  display: flex;
+  align-items: center;
+}
+
+.main-nav__nested.team li .logo {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 1rem;
+}
+
+.main-nav__nested.team li .team-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

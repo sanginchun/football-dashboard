@@ -1,0 +1,11 @@
+.logo-container {
+  margin: 0 auto;
+  padding-left: 4rem;
+}
+
+.logo-container .logo {
+  display: inline-block;
+  color: #333;
+  border-left: 0.35rem solid #333;
+  padding-left: 0.7rem;
+}
