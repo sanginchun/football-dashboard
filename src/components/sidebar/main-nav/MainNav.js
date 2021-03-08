@@ -1,5 +1,6 @@
 import "./MainNav.css";
 import Spinner from "../../spinner/Spinner";
+import { formatTeamName } from "../../../helper";
 
 class MainNav {
   constructor({ $target, onClickNav, onClickLeague }) {
@@ -88,7 +89,7 @@ class MainNav {
         return `
         <li data-team-id="${teamId}" data-team-code="${code}">
           <img class="logo" src="${logo}" alt="logo of ${code}" title="${code}">
-          <h4 class="team-name">${name}</h4>
+          <h4 class="team-name">${formatTeamName(name)}</h4>
         </li>`;
       })
       .join("");

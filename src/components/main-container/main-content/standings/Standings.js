@@ -1,6 +1,7 @@
 import "./Standings.css";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
+import { formatTeamName } from "../../../../helper";
 
 class Standings {
   constructor({ $target, isCustom }) {
@@ -62,7 +63,11 @@ class Standings {
         return `
           <tr>
             <td><h4>${t.position}</h4></td>
-            <td class="team" data-team-id=${t.team_id}><img class="logo" src=${logo} alt="${code}"/><h5>${name}<h5></td>
+            <td class="team" data-team-id=${
+              t.team_id
+            }><img class="logo" src=${logo} alt="${code}"/><h5>${formatTeamName(
+          name
+        )}<h5></td>
             <td><h5>${t.points}</h5></td>
             <td><h5>${t.overall.games_played}</h5></td>
             <td><h5>${t.overall.won}</h5></td>
