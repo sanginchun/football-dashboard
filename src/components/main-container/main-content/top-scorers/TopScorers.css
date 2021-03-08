@@ -1,0 +1,16 @@
+.top-scorers tbody tr * {
+  padding: 0.12rem 0.25rem;
+}
+
+.top-scorers .logo {
+  padding: 0;
+  width: 0.9rem;
+  margin-right: 0.3rem;
+}
+
+.top-scorers .player {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  padding-left: 0.9rem;
+}

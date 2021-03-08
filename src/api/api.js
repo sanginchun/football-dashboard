@@ -113,6 +113,15 @@ class API {
     const expire = new Date(Date.now() + HALF_HOUR);
     return this.request(URL, expire);
   }
+
+  getTopScorers(leagueId, seasonId) {
+    const KEY = LEAGUE_ID_KEY1.includes(+leagueId) ? API_KEY : API_KEY2;
+    const URL = `https://${API_HOST}/topscorers?apikey=${KEY}&season_id=${seasonId}`;
+
+    const expire = new Date(Date.now() + HALF_HOUR);
+
+    return this.request(URL, expire);
+  }
 }
 
 export const api = new API();

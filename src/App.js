@@ -3,6 +3,7 @@ import { LEAGUE_IDS } from "./config.js";
 import { api } from "./api/api.js";
 import SideBar from "./components/sidebar/SideBar";
 import MainContainer from "./components/main-container/MainContainer";
+import { getLocalDate } from "./helper";
 
 class App {
   constructor($target) {
@@ -85,9 +86,11 @@ class App {
       standingsData.map((team) => api.getTeam(leagueId, team.team_id))
     );
     const teamsData = {};
+    const teamsDataByName = {};
     teamsDataArr.forEach((team) => {
-      const { team_id } = team;
+      const { team_id, name } = team;
       teamsData[team_id] = team;
+      teamsDataByName[name] = team;
     });
 
     // render on nav
@@ -95,8 +98,9 @@ class App {
       teamsDataArr.sort((a, b) => a.name.localeCompare(b.name))
     );
 
+    // 각각 => 콜백에 render
     // get standings and render
-    api.getStandings(leagueId, seasonId).then((data) => {
+    const standingsProm = api.getStandings(leagueId, seasonId).then((data) => {
       const { standings: standingsData } = data;
       this.mainContainer.content.standings.render({
         standingsData,
@@ -105,34 +109,80 @@ class App {
     });
 
     // get match results and render
-    api.getMatchResults(leagueId, seasonId).then((data) => {
-      // filter finished matches
-      const matchesData = data.filter((match) => match.status === "finished");
+    const matchResultsProm = api
+      .getMatchResults(leagueId, seasonId)
+      .then((data) => {
+        // filter, get local date
+        const matchesData = data
+          .filter((match) => match.status === "finished")
+          .map((match) => {
+            const { match_start_iso } = match;
+            // override match start
+            match.match_start = getLocalDate(match_start_iso);
+            return match;
+          });
 
-      // sort
-      matchesData.sort(
-        (a, b) => new Date(a.match_start) - new Date(b.match_start)
-      );
+        // sort
+        matchesData.sort(
+          (a, b) => new Date(a.match_start) - new Date(b.match_start)
+        );
 
-      // render
-      this.mainContainer.content.matchResults.render(matchesData);
+        // render
+        this.mainContainer.content.matchResults.render(
+          matchesData,
+          teamsDataByName
+        );
+      });
+
+    const matchUpcomingProm = api
+      .getMatchUpcoming(leagueId, seasonId)
+      .then((data) => {
+        // filter upcoming matches
+        const matchesData = data
+          .filter((match) => match.status === "notstarted")
+          .map((match) => {
+            const { match_start_iso } = match;
+            // override match start
+            match.match_start = getLocalDate(match_start_iso);
+            return match;
+          });
+
+        // sort
+        matchesData.sort(
+          (a, b) => new Date(a.match_start) - new Date(b.match_start)
+        );
+
+        this.mainContainer.content.matchUpcoming.render(
+          matchesData,
+          teamsDataByName
+        );
+      });
+
+    const topScorersProm = api
+      .getTopScorers(leagueId, seasonId)
+      .then((data) => {
+        const top5 = data.slice(0, 5);
+        // get equals
+        const topScorersData = top5.concat(
+          data.slice(5).filter((player) => {
+            return player.goals.overall >= top5[4].goals.overall;
+          })
+        );
+
+        this.mainContainer.content.topScorers.render(
+          topScorersData,
+          teamsDataByName
+        );
+      });
+
+    Promise.all([
+      standingsProm,
+      matchResultsProm,
+      matchUpcomingProm,
+      topScorersProm,
+    ]).then(() => {
+      window.scroll(0, 0);
     });
-
-    api.getMatchUpcoming(leagueId, seasonId).then((data) => {
-      // filter upcoming matches
-      const matchesData = data.filter((match) => match.status === "notstarted");
-
-      // sort
-      matchesData.sort(
-        (a, b) => new Date(a.match_start) - new Date(b.match_start)
-      );
-
-      this.mainContainer.content.matchUpcoming.render(matchesData);
-    });
-
-    // 각각 => 콜백에 render
-
-    // promise all로 받아서 => user state 업데이트
   }
 
   handleClickTeam({}) {}

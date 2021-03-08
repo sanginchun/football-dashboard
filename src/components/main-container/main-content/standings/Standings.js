@@ -1,5 +1,5 @@
 import "./Standings.css";
-import Spinner from "../../../Spinner/Spinner";
+import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
 
 class Standings {

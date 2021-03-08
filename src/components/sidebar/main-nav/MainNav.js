@@ -1,5 +1,5 @@
 import "./MainNav.css";
-import Spinner from "../../Spinner/Spinner";
+import Spinner from "../../spinner/Spinner";
 
 class MainNav {
   constructor({ $target, onClickNav, onClickLeague }) {

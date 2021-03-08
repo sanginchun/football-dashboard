@@ -1,5 +1,5 @@
 import "./Matches.css";
-import Spinner from "../../../Spinner/Spinner";
+import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
 import { DatePicker } from "../date-picker/DatePicker";
 
@@ -33,8 +33,9 @@ class Matches {
     return div;
   }
 
-  render(matchesData) {
+  render(matchesData, teamsDataByName) {
     this.data = matchesData.slice();
+    this.teamsData = Object.assign({}, teamsDataByName);
 
     // date picker
     const uniqueDateArr = Array.from(
@@ -92,7 +93,9 @@ class Matches {
         <tr>
           <td class="team ${home}" data-team-id="${match.home_team.team_id}">
             <h5>${match.home_team.short_code}</h5>
-            <img class="logo" src=${match.home_team.logo} alt=""/>
+            <img class="logo" src=${
+              this.teamsData[match.home_team.name].logo
+            } alt=""/>
           </td>
           ${
             this.type === "Results"
@@ -102,7 +105,9 @@ class Matches {
                 }</h4></td>`
           }
           <td class="team ${away}" data-team-id="${match.away_team.team_id}">
-            <img class="logo" src=${match.away_team.logo} alt=""/>
+            <img class="logo" src=${
+              this.teamsData[match.away_team.name].logo
+            } alt=""/>
             <h5>${match.away_team.short_code}</h5>
           </td>
         </tr>

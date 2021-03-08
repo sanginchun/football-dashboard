@@ -1,6 +1,7 @@
 import "./MainContent.css";
 import Standings from "./standings/Standings";
 import Matches from "./matches/Matches";
+import TopScorers from "./top-scorers/TopScorers";
 
 class MainContent {
   constructor({ $target, onClickLeague }) {
@@ -40,6 +41,11 @@ class MainContent {
       $target: this.content,
       isCustom: false,
       type: "Upcoming",
+    });
+
+    this.topScorers = new TopScorers({
+      $target: this.content,
+      isCustom: false,
     });
   }
 }
