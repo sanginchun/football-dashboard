@@ -1,6 +1,10 @@
 .main-container {
-  flex: 0.775;
-  border: 1px solid black;
-  min-height: 100%;
+  width: 77%;
+  min-height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 23%;
+  padding: 0 4%;
+  padding-bottom: 2rem;
   background-color: var(--background-color);
 }

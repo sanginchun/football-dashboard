@@ -81,3 +81,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.main-nav .spinner {
+  top: 10rem;
+  left: 10rem;
+}

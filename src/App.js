@@ -62,22 +62,43 @@ class App {
   handleClickLeague({ leagueId, seasonId }) {
     this.sidebar.mainNav.spinner.toggle();
 
-    // standings: cache X, team: cache
+    let standingsData;
+    let teamsData = {};
+
     api
-      .getStandings(leagueId, seasonId)
+      .getLeague(leagueId)
       .then((data) => {
-        const { standings } = data;
+        const { name } = data;
+        this.mainContainer.header.renderTitle(name);
+        this.mainContainer.content.renderLeaguePage({ leagueId, seasonId });
+        return api.getStandings(leagueId, seasonId);
+      })
+      .then((data) => {
+        standingsData = data.standings;
         return Promise.all(
-          standings.map((team) => {
+          standingsData.map((team) => {
             const { team_id: teamId } = team;
             return api.getTeam(leagueId, teamId);
           })
         );
       })
       .then((data) => {
+        // parse data
+        data.forEach((team) => {
+          const { team_id } = team;
+          teamsData[team_id] = team;
+        });
+
+        // render on nav
         this.sidebar.mainNav.renderTeam(
           data.sort((a, b) => a.name.localeCompare(b.name))
         );
+
+        // render standings
+        this.mainContainer.content.standings.render({
+          standingsData,
+          teamsData,
+        });
       });
   }
 

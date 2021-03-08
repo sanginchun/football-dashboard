@@ -1,5 +1,5 @@
 import "./MainNav.css";
-import Spinner from "./Spinner";
+import Spinner from "../../Spinner/Spinner";
 
 class MainNav {
   constructor({ $target, onClickNav, onClickLeague }) {
@@ -95,7 +95,6 @@ class MainNav {
 
     navTeam.insertAdjacentElement("afterend", nested);
     navTeam.classList.remove("deactive");
-    this.toggleNested("team");
     this.spinner.toggle();
   }
 

@@ -1,0 +1,47 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: 1.5rem 1.5rem 0 0;
+  background-color: #fff;
+  border: 1px solid var(--almost-white);
+  border-radius: 0.3rem;
+  box-shadow: 0 0.75rem 1.5rem rgb(18 38 63 / 3%);
+  overflow: hidden;
+}
+
+.card.full {
+  width: 100%;
+  min-height: 20rem;
+  max-height: 25rem;
+}
+
+.card .header {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--almost-white);
+}
+
+.card .body {
+  padding: 1rem 2rem;
+  overflow-y: hidden;
+}
+
+.card .body:hover {
+  overflow-y: auto;
+}
+
+table {
+  text-align: center;
+}
+
+table h4 {
+  font-size: 0.9rem;
+}
+
+table tbody tr > * {
+  padding: 2px 4px;
+}
+
+table tbody th {
+  background-color: var(--almost-white);
+}

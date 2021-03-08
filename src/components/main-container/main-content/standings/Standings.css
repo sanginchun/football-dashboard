@@ -1,0 +1,23 @@
+/* Standings */
+.standings tbody tr > * {
+  min-width: 4rem;
+}
+
+.standings .logo {
+  padding: 0;
+  width: 1rem;
+  margin-right: 0.6rem;
+}
+
+.standings .team {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  padding-left: 1.25rem;
+}
+
+.standings tbody th {
+  top: -1rem;
+  position: sticky;
+}
