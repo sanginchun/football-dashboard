@@ -118,6 +118,18 @@ class App {
       this.mainContainer.content.matchResults.render(matchesData);
     });
 
+    api.getMatchUpcoming(leagueId, seasonId).then((data) => {
+      // filter upcoming matches
+      const matchesData = data.filter((match) => match.status === "notstarted");
+
+      // sort
+      matchesData.sort(
+        (a, b) => new Date(a.match_start) - new Date(b.match_start)
+      );
+
+      this.mainContainer.content.matchUpcoming.render(matchesData);
+    });
+
     // 각각 => 콜백에 render
 
     // promise all로 받아서 => user state 업데이트

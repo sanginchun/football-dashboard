@@ -1,30 +1,31 @@
-import "./MatchResults.css";
+import "./Matches.css";
 import Spinner from "../../../Spinner/Spinner";
 import AddButton from "../add-button/AddButton";
 import { DatePicker } from "../date-picker/DatePicker";
 
-class MatchResults {
-  constructor({ $target, isCustom }) {
-    this.matchResults = this._template();
+class Matches {
+  constructor({ $target, isCustom, type }) {
+    this.type = type;
+    this.matches = this._template();
 
     if (!isCustom)
-      new AddButton({ $target: this.matchResults.querySelector(".header") });
+      new AddButton({ $target: this.matches.querySelector(".header") });
 
     this.spinner = new Spinner({
-      $target: this.matchResults,
+      $target: this.matches,
     });
 
-    $target.appendChild(this.matchResults);
+    $target.appendChild(this.matches);
   }
 
   _template() {
     const div = document.createElement("div");
-    div.className = "card half matches result";
-    div.setAttribute("data-type", "matchResults");
+    div.className = `card half matches ${this.type.toLowerCase()}`;
+    div.setAttribute("data-type", `match${this.type}`);
 
     div.innerHTML = `
       <div class="header">
-        <h3 class="title">Results</h3>
+        <h3 class="title">${this.type}</h3>
       </div>
       <div class="body"></div>
     `;
@@ -39,20 +40,23 @@ class MatchResults {
     const uniqueDateArr = Array.from(
       new Set(this.data.map((match) => match.match_start.split(" ")[0]))
     );
-    this.datePicker = DatePicker(uniqueDateArr.reverse());
+
+    this.datePicker = DatePicker(
+      this.type === "Upcoming" ? uniqueDateArr : uniqueDateArr.reverse()
+    );
     this.datePicker.addEventListener("change", (e) => {
       const value = e.target.value;
 
-      this.matchResults.querySelector(".body").innerHTML = "";
-      this.matchResults.querySelector(".body").appendChild(this._table(value));
+      this.matches.querySelector(".body").innerHTML = "";
+      this.matches.querySelector(".body").appendChild(this._table(value));
     });
 
-    this.matchResults
+    this.matches
       .querySelector(".header .title")
       .insertAdjacentElement("afterend", this.datePicker);
 
     // initial data
-    this.matchResults
+    this.matches
       .querySelector(".body")
       .appendChild(this._table(uniqueDateArr[0]));
 
@@ -64,7 +68,7 @@ class MatchResults {
     const header = `
       <tr>
         <th><h5>Home</h5></th>
-        <th><h5>SCORE</h5></th>
+        <th><h5>${this.type === "Results" ? "SCORE" : "Schedule"}</h5></th>
         <th><h5>Away</h5></th>
       </tr>
     `;
@@ -75,12 +79,14 @@ class MatchResults {
         let home = "home";
         let away = "away";
         let score = "score";
-        if (match.stats.home_score > match.stats.away_score) {
-          home += " winner";
-        } else if (match.stats.home_score < match.stats.away_score) {
-          away += " winner";
-        } else {
-          score += " winner";
+        if (this.type === "Results") {
+          if (match.stats.home_score > match.stats.away_score) {
+            home += " winner";
+          } else if (match.stats.home_score < match.stats.away_score) {
+            away += " winner";
+          } else {
+            score += " winner";
+          }
         }
         return `
         <tr>
@@ -88,11 +94,13 @@ class MatchResults {
             <h5>${match.home_team.short_code}</h5>
             <img class="logo" src=${match.home_team.logo} alt=""/>
           </td>
-          <td class="${score}"><h4>${
-          match.stats.ft_score
-            ? match.stats.ft_score.split("").join(" ")
-            : `${match.stats.home_score} - ${match.stats.away_score}`
-        }</h4></td>
+          ${
+            this.type === "Results"
+              ? `<td class="${score}"><h4>${match.stats.home_score} - ${match.stats.away_score}</h4></td>`
+              : `<td class="schedule"><h4>${
+                  match.match_start.split(" ")[1]
+                }</h4></td>`
+          }
           <td class="team ${away}" data-team-id="${match.away_team.team_id}">
             <img class="logo" src=${match.away_team.logo} alt=""/>
             <h5>${match.away_team.short_code}</h5>
@@ -108,4 +116,4 @@ class MatchResults {
   }
 }
 
-export default MatchResults;
+export default Matches;

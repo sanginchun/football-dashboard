@@ -103,6 +103,16 @@ class API {
     const expire = new Date(Date.now() + HALF_HOUR);
     return this.request(URL, expire);
   }
+
+  getMatchUpcoming(leagueId, seasonId) {
+    const KEY = LEAGUE_ID_KEY1.includes(+leagueId) ? API_KEY : API_KEY2;
+    const from = new Date(Date.now()).toISOString().slice(0, 10);
+    const to = new Date(Date.now() + WEEK).toISOString().slice(0, 10);
+    const URL = `https://${API_HOST}/matches?apikey=${KEY}&season_id=${seasonId}&date_from=${from}&date_to=${to}`;
+
+    const expire = new Date(Date.now() + HALF_HOUR);
+    return this.request(URL, expire);
+  }
 }
 
 export const api = new API();
