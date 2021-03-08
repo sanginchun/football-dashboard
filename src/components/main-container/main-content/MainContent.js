@@ -1,8 +1,9 @@
 import "./MainContent.css";
 import Standings from "./standings/Standings";
+import MatchResults from "./match-results/MatchResults";
 
 class MainContent {
-  constructor({ $target }) {
+  constructor({ $target, onClickLeague }) {
     this.content = this._template();
 
     $target.appendChild(this.content);
@@ -26,6 +27,12 @@ class MainContent {
     // render templates
     this.standings = new Standings({
       $target: this.content,
+      isCustom: false,
+    });
+
+    this.matchResults = new MatchResults({
+      $target: this.content,
+      isCustom: false,
     });
   }
 }

@@ -1,9 +1,13 @@
 import "./Standings.css";
 import Spinner from "../../../Spinner/Spinner";
+import AddButton from "../add-button/AddButton";
 
 class Standings {
-  constructor({ $target }) {
+  constructor({ $target, isCustom }) {
     this.standings = this._template();
+
+    if (!isCustom)
+      new AddButton({ $target: this.standings.querySelector(".header") });
 
     this.spinner = new Spinner({
       $target: this.standings,
@@ -19,7 +23,7 @@ class Standings {
 
     div.innerHTML = `
       <div class="header">
-        <h3>Standings</h3>
+        <h3 class="title">Standings</h3>
       </div>
       <div class="body"></div>
     `;
@@ -36,7 +40,6 @@ class Standings {
   }
 
   _table(standings, teams) {
-    console.log(standings, teams);
     const table = document.createElement("table");
     const header = `
     <tr>

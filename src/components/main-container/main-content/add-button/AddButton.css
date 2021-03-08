@@ -1,0 +1,12 @@
+.btn-add {
+  margin-left: auto;
+  background-color: #fff;
+  border: var(--main-color) 1px solid;
+  color: var(--main-color);
+  transition: all 0.2s;
+}
+
+.btn-add.added {
+  color: #fff;
+  background-color: var(--main-color);
+}

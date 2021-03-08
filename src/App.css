@@ -26,3 +26,16 @@ li {
 #app {
   position: relative;
 }
+
+.btn {
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.5rem 0.6rem;
+  color: #fff;
+  background-color: var(--main-color);
+  border-radius: 3px;
+}
+
+.btn:hover {
+  cursor: pointer;
+}

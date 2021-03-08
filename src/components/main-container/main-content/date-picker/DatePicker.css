@@ -1,0 +1,8 @@
+.date-picker {
+  margin-left: 1rem;
+  padding: 0.15rem;
+  border: 1px solid var(--light-grey);
+  font-family: "Roboto", sans-serif;
+  color: var(--dark-grey);
+  border-radius: 4px;
+}

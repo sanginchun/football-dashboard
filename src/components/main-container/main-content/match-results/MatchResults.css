@@ -1,0 +1,36 @@
+.matches .team {
+  cursor: pointer;
+  width: 7rem;
+  padding-top: 0.35rem;
+}
+
+.matches .team.away {
+  text-align: left;
+}
+
+.matches .team.home {
+  text-align: right;
+}
+
+.matches .team > *:first-child {
+  margin-right: 0.6rem;
+}
+
+.matches .team h5 {
+  display: inline-block;
+  transform: translateY(-0.7rem);
+}
+
+.matches .status,
+.matches .schedule,
+.matches .score {
+  width: 7rem;
+}
+
+.matches .winner {
+  background-color: #ccf7e5;
+}
+
+.matches .logo {
+  width: 30%;
+}
