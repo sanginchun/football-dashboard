@@ -57,7 +57,7 @@ class MainContent {
     return div;
   }
 
-  renderLeaguePage({ leagueId, seasonId }) {
+  renderLeaguePagePlaceholder({ leagueId, seasonId }) {
     // clear
     this.content.innerHTML = "";
 
@@ -90,7 +90,7 @@ class MainContent {
     });
   }
 
-  renderTeamPage({ leagueId, seasonId, teamId }) {
+  renderTeamPagePlaceholder({ leagueId, seasonId, teamId }) {
     // clear
     this.content.innerHTML = "";
 
@@ -116,34 +116,31 @@ class MainContent {
     });
   }
 
-  renderCustomPage({ contentTypes }) {
+  renderCustomPagePlaceholder({ contentTypes }) {
     // clear
     this.content.innerHTML = "";
 
+    // clear data
+    this.content.dataset.leagueId = this.content.dataset.seasonId = this.content.dataset.teamId =
+      "";
+
     // prettier-ignore
-    contentTypes.forEach((type) => {
+    return contentTypes.map((type) => {
       switch (type) {
         case "standings":
-          new Standings({$target: this.content, isCustom: true});
-          break;
+          return new Standings({$target: this.content, isCustom: true});
         case "matchResults":
-          new Matches({$target: this.content, isCustom: true, type: "Results"});
-          break;
+          return new Matches({$target: this.content, isCustom: true, type: "Results"});
         case "matchUpcoming":
-          new Matches({$target: this.content, isCustom: true, type: "Upcoming"});
-          break;
+          return new Matches({$target: this.content, isCustom: true, type: "Upcoming"});
         case "topScorers":
-          new Matches({$target: this.content, isCustom: true});
-          break;
+          return new Matches({$target: this.content, isCustom: true});
         case "teamStanding":
-          new TeamStanding({$target: this.content, isCustom: true});
-          break;
+          return new TeamStanding({$target: this.content, isCustom: true});
         case "nextMatch":
-          new NextMatch({$target: this.content, isCustom: true});
-          break;
+          return new NextMatch({$target: this.content, isCustom: true});
         case "form":
-          new Form({$target: this.content, isCustom: true});
-          break;
+          return new Form({$target: this.content, isCustom: true});
       }
     });
   }

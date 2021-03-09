@@ -57,8 +57,14 @@ class App {
       this.sidebar.mainNav.spinner.toggle();
 
       this.mainContainer.header.renderTitle("Custom");
-      this.mainContainer.content.renderCustomPage({
-        contentTypes: this.state.custom.map((content) => content.type),
+      const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder(
+        {
+          contentTypes: this.state.custom.map((content) => content.type),
+        }
+      );
+
+      this.handleClickCustom(contentsRef).then(() => {
+        this.sidebar.mainNav.spinner.toggle();
       });
     } else {
       this.sidebar.mainNav.toggleNested(type);
@@ -71,7 +77,10 @@ class App {
 
     // render page title & content placeholders
     this.mainContainer.header.renderTitle(await model.getLeagueName(leagueId));
-    this.mainContainer.content.renderLeaguePage({ leagueId, seasonId });
+    this.mainContainer.content.renderLeaguePagePlaceholder({
+      leagueId,
+      seasonId,
+    });
 
     // toggle add buttons
     this.toggleAddedContentAddBtns({ leagueId });
@@ -146,7 +155,11 @@ class App {
     this.mainContainer.header.renderTitle(
       await model.getTeamName(leagueId, teamId)
     );
-    this.mainContainer.content.renderTeamPage({ leagueId, seasonId, teamId });
+    this.mainContainer.content.renderTeamPagePlaceholder({
+      leagueId,
+      seasonId,
+      teamId,
+    });
 
     // toggle add buttons
     this.toggleAddedContentAddBtns({ teamId });
@@ -197,6 +210,93 @@ class App {
     Promise.all([teamStandingProm, nextMatchProm, formProm]).then(() => {
       this.sidebar.mainNav.spinner.toggle();
     });
+  }
+
+  async handleClickCustom(contentsRef) {
+    console.log(contentsRef, this.state.custom);
+    return Promise.all(
+      contentsRef.map(async (content, i) => {
+        const { type, leagueId, seasonId, teamId } = this.state.custom[i];
+
+        // get standings data
+        const standingsData = await model.getStandingsData(leagueId, seasonId);
+
+        // get teams data
+        const { teamsData, teamsDataByName } = await model.getTeamsData(
+          leagueId,
+          standingsData
+        );
+
+        switch (type) {
+          case "standings":
+            return Promise.resolve(standingsData).then((standingsData) => {
+              content.render({
+                standingsData,
+                teamsData,
+              });
+            });
+          case "matchResults":
+            return model
+              .getMatchResultsData(leagueId, seasonId)
+              .then((matchesData) => {
+                // render
+                content.render({
+                  matchesData,
+                  teamsDataByName,
+                });
+              });
+          case "matchUpcoming":
+            return model
+              .getMatchUpcomingData(leagueId, seasonId)
+              .then((matchesData) => {
+                content.render({
+                  matchesData,
+                  teamsDataByName,
+                });
+              });
+          case "topScorers":
+            return model
+              .getTopScorersData(leagueId, seasonId)
+              .then((topScorersData) => {
+                content.render({
+                  topScorersData,
+                  teamsDataByName,
+                });
+              });
+          case "teamStanding":
+            return Promise.resolve(standingsData).then((standingsData) => {
+              content.render({
+                standingsData,
+                teamsData,
+                teamId,
+              });
+            });
+          case "nextMatch":
+            return model
+              .getMatchUpcomingData(leagueId, seasonId, teamCode)
+              .then((matchesData) => {
+                // get first one
+                const [nextMatchData] = matchesData;
+
+                content.render({
+                  nextMatchData,
+                  teamCode,
+                  teamsDataByName,
+                });
+              });
+          case "form":
+            return model
+              .getMatchResultsData(leagueId, seasonId, true, teamCode)
+              .then((matchesData) => {
+                content.render({
+                  matchesData,
+                  teamCode,
+                  teamsDataByName,
+                });
+              });
+        }
+      })
+    );
   }
 
   handleClickAddBtn({ type, leagueId, seasonId, teamId }) {
