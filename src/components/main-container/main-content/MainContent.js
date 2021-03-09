@@ -7,7 +7,7 @@ import NextMatch from "./next-match/NextMatch";
 import Form from "./form/Form";
 
 class MainContent {
-  constructor({ $target, onClickLeague, onClickTeam }) {
+  constructor({ $target, onClickLeague, onClickTeam, onClickAddBtn }) {
     this.content = this._template();
 
     // on click team
@@ -18,6 +18,17 @@ class MainContent {
       const { leagueId, seasonId } = this.content.dataset;
 
       onClickTeam({ leagueId, seasonId, teamId, teamCode });
+    });
+
+    // on click add button
+    this.content.addEventListener("click", (e) => {
+      if (!e.target.closest(".btn-add")) return;
+
+      // get content info
+      const { type } = e.target.closest(".card").dataset;
+      const { leagueId, seasonId, teamId } = this.content.dataset;
+
+      onClickAddBtn({ type, leagueId, seasonId, teamId });
     });
 
     $target.appendChild(this.content);
@@ -53,6 +64,7 @@ class MainContent {
     // set data
     this.content.dataset.leagueId = leagueId;
     this.content.dataset.seasonId = seasonId;
+    this.content.dataset.teamId = "";
 
     // render templates
     this.standings = new Standings({
@@ -102,6 +114,46 @@ class MainContent {
       $target: this.content,
       isCustom: false,
     });
+  }
+
+  renderCustomPage({ contentTypes }) {
+    // clear
+    this.content.innerHTML = "";
+
+    // prettier-ignore
+    contentTypes.forEach((type) => {
+      switch (type) {
+        case "standings":
+          new Standings({$target: this.content, isCustom: true});
+          break;
+        case "matchResults":
+          new Matches({$target: this.content, isCustom: true, type: "Results"});
+          break;
+        case "matchUpcoming":
+          new Matches({$target: this.content, isCustom: true, type: "Upcoming"});
+          break;
+        case "topScorers":
+          new Matches({$target: this.content, isCustom: true});
+          break;
+        case "teamStanding":
+          new TeamStanding({$target: this.content, isCustom: true});
+          break;
+        case "nextMatch":
+          new NextMatch({$target: this.content, isCustom: true});
+          break;
+        case "form":
+          new Form({$target: this.content, isCustom: true});
+          break;
+      }
+    });
+  }
+
+  toggleAddBtn({ type, isAdded }) {
+    const target = this.content.querySelector(
+      `.card[data-type="${type}"] .btn-add`
+    );
+    target.classList.toggle("added");
+    target.textContent = isAdded ? "Added" : "Add";
   }
 }
 

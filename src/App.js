@@ -1,13 +1,14 @@
 import "./App.css";
 import { LEAGUE_IDS, MAX_TOP_SCORERS, MAX_FORM_RESULTS } from "./config.js";
 import { api } from "./api/api.js";
+import { model } from "./model.js";
 import SideBar from "./components/sidebar/SideBar";
 import MainContainer from "./components/main-container/MainContainer";
 import { getLocalDate } from "./helper";
 
 class App {
   constructor($target) {
-    // custom
+    // initial state
     this.state = { custom: JSON.parse(localStorage.getItem("custom")) || [] };
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("custom", JSON.stringify(this.state.custom));
@@ -68,7 +69,12 @@ class App {
 
   handleClickNav(type) {
     if (type === "custom") {
-      // load custom page
+      this.sidebar.mainNav.spinner.toggle();
+
+      this.mainContainer.header.renderTitle("Custom");
+      this.mainContainer.content.renderCustomPage({
+        contentTypes: this.state.custom.map((content) => content.type),
+      });
     } else {
       this.sidebar.mainNav.toggleNested(type);
     }
@@ -81,6 +87,18 @@ class App {
     const { name: leagueName } = await api.getLeague(leagueId);
     this.mainContainer.header.renderTitle(leagueName);
     this.mainContainer.content.renderLeaguePage({ leagueId, seasonId });
+
+    // toggle add buttons
+    this.state.custom
+      .map((content) => {
+        const { type, leagueId: _leagueId, teamId } = content;
+        if (!teamId && _leagueId === leagueId) return type;
+      })
+      .filter((t) => t)
+      .forEach((type) => {
+        this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
+      });
+
     window.scroll(0, 0);
 
     // get standings data
@@ -204,6 +222,18 @@ class App {
     // render page title & content placeholders
     this.mainContainer.header.renderTitle(teamName);
     this.mainContainer.content.renderTeamPage({ leagueId, seasonId, teamId });
+
+    // toggle add buttons
+    this.state.custom
+      .map((content) => {
+        const { type, teamId: _teamId } = content;
+        if (_teamId && _teamId === teamId) return type;
+      })
+      .filter((t) => t)
+      .forEach((type) => {
+        this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
+      });
+
     window.scroll(0, 0);
 
     // get standings, team data
@@ -304,8 +334,38 @@ class App {
     });
   }
 
-  handleClickAddBtn() {
-    console.log("clicked");
+  handleClickAddBtn({ type, leagueId, seasonId, teamId }) {
+    const content = teamId
+      ? { type, leagueId, seasonId, teamId }
+      : { type, leagueId, seasonId };
+
+    // check if already in custom
+    let index = -1;
+    this.state.custom.forEach((val, i) => {
+      const { type, leagueId, teamId } = val;
+      if (teamId) {
+        if (content.type === type && content.teamId === teamId) {
+          index = i;
+        }
+      } else {
+        if (content.type === type && content.leagueId === leagueId) {
+          index = i;
+        }
+      }
+    });
+
+    if (index === -1) {
+      this.state.custom = this.state.custom.concat([content]);
+      this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
+    } else {
+      this.state.custom = this.state.custom
+        .slice(0, index)
+        .concat(this.state.custom.slice(index + 1));
+      this.mainContainer.content.toggleAddBtn({ type, isAdded: false });
+    }
+
+    console.log(this.state.custom);
+    // console.log(type, leagueId, seasonId, teamId);
   }
 }
 
