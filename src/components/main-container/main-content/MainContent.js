@@ -27,6 +27,22 @@ class MainContent {
     const div = document.createElement("header");
     div.className = "main-content";
 
+    div.innerHTML = `
+    <div class="card full landing">
+      <div class="header">
+        <h3>How To Use</h3>
+      </div>
+      <div class="body">
+        <div class="steps">
+          <h4 class="step step-1">1. Navigate through League and Team tabs.</h4>
+          <h4 class="step step-2">2. Create your own dashboard by adding contents.</h4>
+          <h4 class="step step-3">3. Check it out on Custom tab and sign in to save it.</h4>
+          <h4 class="step step-4">4. Have fun 🙂</h4>
+          <h4 class="contact">- Please let me know if something goes wrong -><a href="mailto:sanginchun91@gmail.com">Contact</a></h4>
+        </div>
+      </div>
+    </div>`;
+
     return div;
   }
 

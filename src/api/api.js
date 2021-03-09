@@ -16,13 +16,25 @@ class API {
     });
   }
 
-  // need to add delete match cache func
-
   async initCache(cacheName) {
     this.cache = await caches.open(cacheName);
+    await this.clearCache();
   }
 
-  async request(URL, expire = "") {
+  async clearCache() {
+    const expired = Object.keys(this.cacheExpire).filter((url) => {
+      return new Date(Date.now()) > new Date(this.cacheExpire[url]);
+    });
+
+    Promise.all(
+      expired.map((url) => {
+        delete this.cacheExpire[url];
+        return this.cache.delete(url);
+      })
+    ).then((res) => console.log(`deleted ${res.length} caches`));
+  }
+
+  async request(URL, expire) {
     try {
       // check cache
       const cacheRes = await this.cache.match(URL);
@@ -37,23 +49,12 @@ class API {
 
         return data;
       }
-
-      // not cached, need to cache
-      if (expire) {
-        // add to cache
+      // add to cache
+      else {
         await this.cache.add(URL);
         this.cacheExpire[URL] = expire;
 
         const res = await this.cache.match(URL);
-        if (!res.ok) throw new Error(`${res.status}`);
-
-        const { data } = await res.json();
-        return data;
-      }
-
-      // not cached, no need to cache
-      if (!expire) {
-        const res = await fetch(URL);
         if (!res.ok) throw new Error(`${res.status}`);
 
         const { data } = await res.json();

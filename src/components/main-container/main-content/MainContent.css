@@ -58,3 +58,19 @@ table tbody tr > * {
 table tbody th {
   background-color: var(--almost-white);
 }
+
+.landing .step {
+  margin-bottom: 1.25rem;
+}
+
+.landing .contact {
+  color: var(--medium-grey);
+}
+
+.landing .contact a {
+  margin-left: 0.35rem;
+}
+
+.landing .contact a:hover {
+  color: var(--dark-grey);
+}

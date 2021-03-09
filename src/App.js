@@ -1,5 +1,5 @@
 import "./App.css";
-import { LEAGUE_IDS } from "./config.js";
+import { LEAGUE_IDS, MAX_TOP_SCORERS, MAX_FORM_RESULTS } from "./config.js";
 import { api } from "./api/api.js";
 import SideBar from "./components/sidebar/SideBar";
 import MainContainer from "./components/main-container/MainContainer";
@@ -7,6 +7,12 @@ import { getLocalDate } from "./helper";
 
 class App {
   constructor($target) {
+    // custom
+    this.state = { custom: JSON.parse(localStorage.getItem("custom")) || [] };
+    window.addEventListener("beforeunload", () => {
+      localStorage.setItem("custom", JSON.stringify(this.state.custom));
+    });
+
     // sidebar
     this.sidebar = new SideBar({
       $target,
@@ -20,6 +26,7 @@ class App {
       $target,
       onClickLeague: this.handleClickLeague.bind(this),
       onClickTeam: this.handleClickTeam.bind(this),
+      onClickAddBtn: this.handleClickAddBtn.bind(this),
     });
 
     // init cache
@@ -165,11 +172,11 @@ class App {
     const topScorersProm = api
       .getTopScorers(leagueId, seasonId)
       .then((data) => {
-        const top5 = data.slice(0, 5);
+        const top5 = data.slice(0, MAX_TOP_SCORERS);
         // get equals
         const topScorersData = top5.concat(
-          data.slice(5).filter((player) => {
-            return player.goals.overall >= top5[4].goals.overall;
+          data.slice(MAX_TOP_SCORERS).filter((player) => {
+            return player.goals.overall >= top5[top5.length - 1].goals.overall;
           })
         );
 
@@ -281,17 +288,24 @@ class App {
           (a, b) => new Date(a.match_start) - new Date(b.match_start)
         );
 
-        if (matchesData.length > 5) {
-          matchesData.splice(0, matchesData.length - 5);
+        if (matchesData.length > MAX_FORM_RESULTS) {
+          matchesData.splice(0, matchesData.length - MAX_FORM_RESULTS);
         }
 
-        console.log(matchesData);
         this.mainContainer.content.form.render({
           matchesData,
           teamCode,
           teamsDataByName,
         });
       });
+
+    Promise.all([teamStandingProm, nextMatchProm, formProm]).then(() => {
+      //
+    });
+  }
+
+  handleClickAddBtn() {
+    console.log("clicked");
   }
 }
 
