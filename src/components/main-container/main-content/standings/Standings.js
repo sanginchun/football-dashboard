@@ -59,13 +59,13 @@ class Standings {
 
     const rows = standings
       .map((t) => {
-        const { logo, name, code } = teams[t.team_id];
+        const { logo, name, short_code: code } = teams[t.team_id];
         return `
           <tr>
             <td><h4>${t.position}</h4></td>
             <td class="team" data-team-id=${
               t.team_id
-            }><img class="logo" src=${logo} alt="${code}"/><h5>${formatTeamName(
+            } data-team-code="${code}"><img class="logo" src=${logo} alt="${code}"/><h5>${formatTeamName(
           name
         )}<h5></td>
             <td><h5>${t.points}</h5></td>

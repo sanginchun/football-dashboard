@@ -24,3 +24,18 @@ export const formatName = function (name) {
   }
   return formatted.join(" ");
 };
+
+export const formatDate = function (dateStr) {
+  // to make it work on safari
+  const date = new Date(dateStr.replaceAll("-", "/"));
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    hour12: "true",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+    .format(date)
+    .split(", ");
+};

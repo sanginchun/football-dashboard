@@ -32,10 +32,10 @@ class TopScorers {
     return div;
   }
 
-  render({ topScorersData, teamsData }) {
+  render({ topScorersData, teamsDataByName }) {
     this.topScorers
       .querySelector(".body")
-      .appendChild(this._content(topScorersData, teamsData));
+      .appendChild(this._content(topScorersData, teamsDataByName));
 
     this.spinner.toggle();
   }

@@ -33,7 +33,7 @@ class Matches {
     return div;
   }
 
-  render(matchesData, teamsDataByName) {
+  render({ matchesData, teamsDataByName }) {
     this.data = matchesData.slice();
     this.teamsData = Object.assign({}, teamsDataByName);
 
@@ -91,7 +91,9 @@ class Matches {
         }
         return `
         <tr>
-          <td class="team ${home}" data-team-id="${match.home_team.team_id}">
+          <td class="team ${home}" data-team-id="${
+          this.teamsData[match.home_team.name].team_id
+        }" data-team-code="${match.home_team.short_code}">
             <h5>${match.home_team.short_code}</h5>
             <img class="logo" src=${
               this.teamsData[match.home_team.name].logo
@@ -104,7 +106,9 @@ class Matches {
                   match.match_start.split(" ")[1]
                 }</h4></td>`
           }
-          <td class="team ${away}" data-team-id="${match.away_team.team_id}">
+          <td class="team ${away}" data-team-id="${
+          this.teamsData[match.away_team.name].team_id
+        }" data-team-code="${match.away_team.short_code}">
             <img class="logo" src=${
               this.teamsData[match.away_team.name].logo
             } alt=""/>

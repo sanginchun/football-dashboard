@@ -3,6 +3,8 @@ import Standings from "./standings/Standings";
 import Matches from "./matches/Matches";
 import TopScorers from "./top-scorers/TopScorers";
 import TeamStanding from "./team-standing/TeamStanding";
+import NextMatch from "./next-match/NextMatch";
+import Form from "./form/Form";
 
 class MainContent {
   constructor({ $target, onClickLeague, onClickTeam }) {
@@ -12,10 +14,10 @@ class MainContent {
     this.content.addEventListener("click", (e) => {
       if (!e.target.closest(".team")) return;
 
-      const { teamId } = e.target.closest(".team").dataset;
+      const { teamId, teamCode } = e.target.closest(".team").dataset;
       const { leagueId, seasonId } = this.content.dataset;
 
-      onClickTeam({ leagueId, seasonId, teamId });
+      onClickTeam({ leagueId, seasonId, teamId, teamCode });
     });
 
     $target.appendChild(this.content);
@@ -71,6 +73,16 @@ class MainContent {
 
     // render templates
     this.teamStanding = new TeamStanding({
+      $target: this.content,
+      isCustom: false,
+    });
+
+    this.nextMatch = new NextMatch({
+      $target: this.content,
+      isCustom: false,
+    });
+
+    this.form = new Form({
       $target: this.content,
       isCustom: false,
     });

@@ -130,10 +130,10 @@ class App {
         );
 
         // render
-        this.mainContainer.content.matchResults.render(
+        this.mainContainer.content.matchResults.render({
           matchesData,
-          teamsDataByName
-        );
+          teamsDataByName,
+        });
       });
 
     // match upcoming
@@ -145,7 +145,7 @@ class App {
           .filter((match) => match.status === "notstarted")
           .map((match) => {
             const { match_start_iso } = match;
-            // override match start
+            // match start local time
             match.match_start = getLocalDate(match_start_iso);
             return match;
           });
@@ -155,10 +155,10 @@ class App {
           (a, b) => new Date(a.match_start) - new Date(b.match_start)
         );
 
-        this.mainContainer.content.matchUpcoming.render(
+        this.mainContainer.content.matchUpcoming.render({
           matchesData,
-          teamsDataByName
-        );
+          teamsDataByName,
+        });
       });
 
     // top scorers
@@ -175,7 +175,7 @@ class App {
 
         this.mainContainer.content.topScorers.render({
           topScorersData,
-          teamsData: teamsDataByName,
+          teamsDataByName,
         });
       });
 
@@ -190,13 +190,14 @@ class App {
     });
   }
 
-  async handleClickTeam({ leagueId, seasonId, teamId }) {
+  async handleClickTeam({ leagueId, seasonId, teamId, teamCode }) {
     // get team name
     const { name: teamName } = await api.getTeam(leagueId, teamId);
 
     // render page title & content placeholders
     this.mainContainer.header.renderTitle(teamName);
     this.mainContainer.content.renderTeamPage({ leagueId, seasonId, teamId });
+    window.scroll(0, 0);
 
     // get standings, team data
     // get standings data
@@ -210,18 +211,87 @@ class App {
       standingsData.map((team) => api.getTeam(leagueId, team.team_id))
     );
     const teamsData = {};
+    const teamsDataByName = {};
     teamsDataArr.forEach((team) => {
-      const { team_id } = team;
+      const { team_id, name } = team;
       teamsData[team_id] = team;
+      teamsDataByName[name] = team;
     });
 
-    const teamStandingProm = Promise.resolve(standingsData).then((data) => {
-      this.mainContainer.content.teamStanding.render({
-        standingsData,
-        teamsData,
-        teamId,
+    const teamStandingProm = Promise.resolve(standingsData).then(
+      (standingsData) => {
+        this.mainContainer.content.teamStanding.render({
+          standingsData,
+          teamsData,
+          teamId,
+        });
+      }
+    );
+
+    const nextMatchProm = api
+      .getMatchUpcoming(leagueId, seasonId)
+      .then((data) => {
+        const matchesData = data
+          .filter((match) => {
+            return (
+              match.status === "notstarted" &&
+              (match.home_team.short_code === teamCode ||
+                match.away_team.short_code === teamCode)
+            );
+          })
+          .map((match) => {
+            const { match_start_iso } = match;
+            // match start local time
+            match.match_start = getLocalDate(match_start_iso);
+            return match;
+          });
+
+        // sort and get first one
+        const [nextMatchData] = matchesData.sort(
+          (a, b) => new Date(a.match_start) - new Date(b.match_start)
+        );
+
+        this.mainContainer.content.nextMatch.render({
+          nextMatchData,
+          teamCode,
+          teamsDataByName,
+        });
       });
-    });
+
+    const formProm = api
+      .getMatchResults(leagueId, seasonId, true)
+      .then((data) => {
+        const matchesData = data
+          .filter((match) => {
+            return (
+              match.status === "finished" &&
+              (match.home_team.short_code === teamCode ||
+                match.away_team.short_code === teamCode)
+            );
+          })
+          .map((match) => {
+            const { match_start_iso } = match;
+            // match start local time
+            match.match_start = getLocalDate(match_start_iso);
+            return match;
+          });
+
+        // sort
+        matchesData.sort(
+          (a, b) => new Date(a.match_start) - new Date(b.match_start)
+        );
+
+        if (matchesData.length > 5) {
+          matchesData.splice(0, matchesData.length - 5);
+        }
+
+        console.log(matchesData);
+        this.mainContainer.content.form.render({
+          matchesData,
+          teamCode,
+          teamsDataByName,
+        });
+      });
   }
 }
 

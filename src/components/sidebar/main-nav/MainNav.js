@@ -30,7 +30,7 @@ class MainNav {
     this.mainNav.addEventListener("click", (e) => {
       if (!e.target.closest("ul.main-nav__nested.team li")) return;
 
-      const { leagueId, teamId } = e.target.closest(
+      const { leagueId, teamId, teamCode } = e.target.closest(
         "ul.main-nav__nested.team li"
       ).dataset;
 
@@ -38,7 +38,7 @@ class MainNav {
         `.main-nav__nested.league li[data-league-id="${leagueId}"]`
       ).dataset;
 
-      onClickTeam({ leagueId, seasonId, teamId });
+      onClickTeam({ leagueId, seasonId, teamId, teamCode });
     });
 
     $target.appendChild(this.mainNav);
@@ -102,7 +102,7 @@ class MainNav {
         const { team_id: teamId, name, short_code: code, logo } = team;
 
         return `
-        <li data-team-id="${teamId}" data-league-id="${leagueId}">
+        <li data-team-id="${teamId}" data-team-code="${code}" data-league-id="${leagueId}">
           <img class="logo" src="${logo}" alt="logo of ${code}" title="${code}">
           <h4 class="team-name">${formatTeamName(name)}</h4>
         </li>`;

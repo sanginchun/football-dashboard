@@ -96,9 +96,11 @@ class API {
     return this.request(URL, expire);
   }
 
-  getMatchResults(leagueId, seasonId) {
+  getMatchResults(leagueId, seasonId, isMonth = false) {
     const KEY = LEAGUE_ID_KEY1.includes(+leagueId) ? API_KEY : API_KEY2;
-    const from = new Date(Date.now() - WEEK).toISOString().slice(0, 10);
+    const from = new Date(Date.now() - (isMonth ? MONTH : WEEK))
+      .toISOString()
+      .slice(0, 10);
     const to = new Date(Date.now()).toISOString().slice(0, 10);
     const URL = `https://${API_HOST}/matches?apikey=${KEY}&season_id=${seasonId}&date_from=${from}&date_to=${to}`;
 

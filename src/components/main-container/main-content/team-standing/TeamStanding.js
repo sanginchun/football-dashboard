@@ -51,7 +51,7 @@ class TeamStanding {
     div.innerHTML = standingsData
       .map((team) => {
         return `
-          <div class="team${team.team_id+"" === teamId ? " current" : ""}" data-team-id="${team.team_id}">
+          <div class="team${team.team_id+"" === teamId ? " current" : ""}" data-team-id="${team.team_id}" data-team-code="${teamsData[team.team_id].short_code}">
             <img class="logo" src=${teamsData[team.team_id].logo}>
             <div class="info">
               <h2 class="position">${team.position}<span class="units">${team.position <= 3 ? positionUnit[team.position - 1] : "th"}</span></h2>
