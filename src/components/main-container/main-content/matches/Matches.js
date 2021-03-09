@@ -49,7 +49,7 @@ class Matches {
       const value = e.target.value;
 
       this.matches.querySelector(".body").innerHTML = "";
-      this.matches.querySelector(".body").appendChild(this._table(value));
+      this.matches.querySelector(".body").appendChild(this._content(value));
     });
 
     this.matches
@@ -59,12 +59,12 @@ class Matches {
     // initial data
     this.matches
       .querySelector(".body")
-      .appendChild(this._table(uniqueDateArr[0]));
+      .appendChild(this._content(uniqueDateArr[0]));
 
     this.spinner.toggle();
   }
 
-  _table(date) {
+  _content(date) {
     const table = document.createElement("table");
     const header = `
       <tr>

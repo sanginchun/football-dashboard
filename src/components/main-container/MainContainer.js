@@ -3,7 +3,7 @@ import MainHeader from "./main-header/MainHeader";
 import MainContent from "./main-content/MainContent";
 
 class MainContainer {
-  constructor({ $target, onClickLeague }) {
+  constructor({ $target, onClickLeague, onClickTeam }) {
     this.mainContainer = this._template();
 
     this.header = new MainHeader({ $target: this.mainContainer });
@@ -11,6 +11,7 @@ class MainContainer {
     this.content = new MainContent({
       $target: this.mainContainer,
       onClickLeague,
+      onClickTeam,
     });
 
     $target.appendChild(this.mainContainer);

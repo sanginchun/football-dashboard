@@ -32,7 +32,15 @@ class TopScorers {
     return div;
   }
 
-  render(topScorersData, teamsData) {
+  render({ topScorersData, teamsData }) {
+    this.topScorers
+      .querySelector(".body")
+      .appendChild(this._content(topScorersData, teamsData));
+
+    this.spinner.toggle();
+  }
+
+  _content(topScorersData, teamsData) {
     const table = document.createElement("table");
     const header = `
     <tr>
@@ -66,9 +74,7 @@ class TopScorers {
 
     table.innerHTML = header + rows;
 
-    this.topScorers.querySelector(".body").appendChild(table);
-
-    this.spinner.toggle();
+    return table;
   }
 }
 

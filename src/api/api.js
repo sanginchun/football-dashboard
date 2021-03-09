@@ -16,6 +16,8 @@ class API {
     });
   }
 
+  // need to add delete match cache func
+
   async initCache(cacheName) {
     this.cache = await caches.open(cacheName);
   }

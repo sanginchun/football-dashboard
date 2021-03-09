@@ -12,12 +12,14 @@ class App {
       $target,
       onClickNav: this.handleClickNav.bind(this),
       onClickLeague: this.handleClickLeague.bind(this),
+      onClickTeam: this.handleClickTeam.bind(this),
     });
 
     // main
     this.mainContainer = new MainContainer({
       $target,
       onClickLeague: this.handleClickLeague.bind(this),
+      onClickTeam: this.handleClickTeam.bind(this),
     });
 
     // init cache
@@ -68,12 +70,11 @@ class App {
   async handleClickLeague({ leagueId, seasonId }) {
     this.sidebar.mainNav.spinner.toggle();
 
-    // get league name and render
+    // render page title & content placeholders
     const { name: leagueName } = await api.getLeague(leagueId);
     this.mainContainer.header.renderTitle(leagueName);
-
-    // render page template
     this.mainContainer.content.renderLeaguePage({ leagueId, seasonId });
+    window.scroll(0, 0);
 
     // get standings data
     const { standings: standingsData } = await api.getStandings(
@@ -95,20 +96,21 @@ class App {
 
     // render on nav
     this.sidebar.mainNav.renderTeam(
-      teamsDataArr.sort((a, b) => a.name.localeCompare(b.name))
+      teamsDataArr.sort((a, b) => a.name.localeCompare(b.name)),
+      leagueId
     );
 
-    // 각각 => 콜백에 render
-    // get standings and render
-    const standingsProm = api.getStandings(leagueId, seasonId).then((data) => {
-      const { standings: standingsData } = data;
-      this.mainContainer.content.standings.render({
-        standingsData,
-        teamsData,
-      });
-    });
+    // standings
+    const standingsProm = Promise.resolve(standingsData).then(
+      (standingsData) => {
+        this.mainContainer.content.standings.render({
+          standingsData,
+          teamsData,
+        });
+      }
+    );
 
-    // get match results and render
+    // match results
     const matchResultsProm = api
       .getMatchResults(leagueId, seasonId)
       .then((data) => {
@@ -134,6 +136,7 @@ class App {
         );
       });
 
+    // match upcoming
     const matchUpcomingProm = api
       .getMatchUpcoming(leagueId, seasonId)
       .then((data) => {
@@ -158,6 +161,7 @@ class App {
         );
       });
 
+    // top scorers
     const topScorersProm = api
       .getTopScorers(leagueId, seasonId)
       .then((data) => {
@@ -169,23 +173,56 @@ class App {
           })
         );
 
-        this.mainContainer.content.topScorers.render(
+        this.mainContainer.content.topScorers.render({
           topScorersData,
-          teamsDataByName
-        );
+          teamsData: teamsDataByName,
+        });
       });
 
+    // after rendered all
     Promise.all([
       standingsProm,
       matchResultsProm,
       matchUpcomingProm,
       topScorersProm,
     ]).then(() => {
-      window.scroll(0, 0);
+      // do something
     });
   }
 
-  handleClickTeam({}) {}
+  async handleClickTeam({ leagueId, seasonId, teamId }) {
+    // get team name
+    const { name: teamName } = await api.getTeam(leagueId, teamId);
+
+    // render page title & content placeholders
+    this.mainContainer.header.renderTitle(teamName);
+    this.mainContainer.content.renderTeamPage({ leagueId, seasonId, teamId });
+
+    // get standings, team data
+    // get standings data
+    const { standings: standingsData } = await api.getStandings(
+      leagueId,
+      seasonId
+    );
+
+    // get teams data
+    const teamsDataArr = await Promise.all(
+      standingsData.map((team) => api.getTeam(leagueId, team.team_id))
+    );
+    const teamsData = {};
+    teamsDataArr.forEach((team) => {
+      const { team_id } = team;
+      teamsData[team_id] = team;
+    });
+
+    const teamStandingProm = Promise.resolve(standingsData).then((data) => {
+      this.mainContainer.content.teamStanding.render({
+        standingsData,
+        teamsData,
+        teamId,
+      });
+    });
+  }
 }
 
 export default App;

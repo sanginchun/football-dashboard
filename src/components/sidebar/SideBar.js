@@ -3,7 +3,7 @@ import Logo from "./logo/Logo";
 import MainNav from "./main-nav/MainNav";
 
 class SideBar {
-  constructor({ $target, onClickNav, onClickLeague }) {
+  constructor({ $target, onClickNav, onClickLeague, onClickTeam }) {
     this.sideBar = this._template();
 
     new Logo({ $target: this.sideBar });
@@ -12,6 +12,7 @@ class SideBar {
       $target: this.sideBar,
       onClickNav,
       onClickLeague,
+      onClickTeam,
     });
 
     $target.appendChild(this.sideBar);

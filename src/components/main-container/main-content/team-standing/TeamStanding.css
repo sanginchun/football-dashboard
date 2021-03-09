@@ -1,0 +1,41 @@
+.team-standing .team {
+  display: grid;
+  cursor: pointer;
+  grid-template-columns: 1fr 3fr;
+  grid-gap: 1.5rem;
+  margin-bottom: 1.8rem;
+  opacity: 0.5;
+}
+
+.team-standing .container .team.current {
+  opacity: 1;
+}
+
+.team-standing .container .info {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.team-standing .container .info .position {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.team-standing .container .info .team-name {
+  display: inline-block;
+}
+
+.team-standing .container .info .points {
+  margin-top: 1rem;
+  margin-left: 1rem;
+}
+
+span.units {
+  font-size: 0.7em;
+  margin: 0 3px;
+}
+
+.team-standing .container .info .points span.units:first-child {
+  margin-right: 5px;
+}
