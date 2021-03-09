@@ -111,7 +111,6 @@ class MainNav {
 
     navTeam.insertAdjacentElement("afterend", nested);
     navTeam.classList.remove("deactive");
-    this.spinner.toggle();
   }
 
   toggleNested(type) {
