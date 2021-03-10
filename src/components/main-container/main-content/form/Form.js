@@ -4,8 +4,11 @@ import AddButton from "../add-button/AddButton";
 import { formatDate } from "../../../../helper";
 
 class Form {
-  constructor({ $target, isCustom }) {
+  constructor({ $target, isCustom, dataset }) {
     this.form = this._template();
+    Object.keys(dataset).forEach(
+      (key) => (this.form.dataset[key] = dataset[key])
+    );
 
     if (!isCustom)
       new AddButton({ $target: this.form.querySelector(".header") });

@@ -4,8 +4,11 @@ import Spinner from "../../../spinner/Spinner";
 import { formatName } from "../../../../helper";
 
 class TopScorers {
-  constructor({ $target, isCustom }) {
+  constructor({ $target, isCustom, dataset }) {
     this.topScorers = this._template();
+    Object.keys(dataset).forEach(
+      (key) => (this.topScorers.dataset[key] = dataset[key])
+    );
 
     if (!isCustom)
       new AddButton({ $target: this.topScorers.querySelector(".header") });

@@ -15,7 +15,7 @@ class MainContent {
       if (!e.target.closest(".team")) return;
 
       const { teamId, teamCode } = e.target.closest(".team").dataset;
-      const { leagueId, seasonId } = this.content.dataset;
+      const { leagueId, seasonId } = e.target.closest(".card").dataset;
 
       onClickTeam({ leagueId, seasonId, teamId, teamCode });
     });
@@ -25,10 +25,11 @@ class MainContent {
       if (!e.target.closest(".btn-add")) return;
 
       // get content info
-      const { type } = e.target.closest(".card").dataset;
-      const { leagueId, seasonId, teamId } = this.content.dataset;
+      const { type, leagueId, seasonId, teamId, teamCode } = e.target.closest(
+        ".card"
+      ).dataset;
 
-      onClickAddBtn({ type, leagueId, seasonId, teamId });
+      onClickAddBtn({ type, leagueId, seasonId, teamId, teamCode });
     });
 
     $target.appendChild(this.content);
@@ -61,86 +62,80 @@ class MainContent {
     // clear
     this.content.innerHTML = "";
 
-    // set data
-    this.content.dataset.leagueId = leagueId;
-    this.content.dataset.seasonId = seasonId;
-    this.content.dataset.teamId = "";
-
     // render templates
     this.standings = new Standings({
       $target: this.content,
       isCustom: false,
+      dataset: { leagueId, seasonId },
     });
 
     this.matchResults = new Matches({
       $target: this.content,
       isCustom: false,
       type: "Results",
+      dataset: { leagueId, seasonId },
     });
 
     this.matchUpcoming = new Matches({
       $target: this.content,
       isCustom: false,
       type: "Upcoming",
+      dataset: { leagueId, seasonId },
     });
 
     this.topScorers = new TopScorers({
       $target: this.content,
       isCustom: false,
+      dataset: { leagueId, seasonId },
     });
   }
 
-  renderTeamPagePlaceholder({ leagueId, seasonId, teamId }) {
+  renderTeamPagePlaceholder({ leagueId, seasonId, teamId, teamCode }) {
     // clear
     this.content.innerHTML = "";
-
-    // set data
-    this.content.dataset.leagueId = leagueId;
-    this.content.dataset.seasonId = seasonId;
-    this.content.dataset.teamId = teamId;
 
     // render templates
     this.teamStanding = new TeamStanding({
       $target: this.content,
       isCustom: false,
+      dataset: { leagueId, seasonId, teamId, teamCode },
     });
 
     this.nextMatch = new NextMatch({
       $target: this.content,
       isCustom: false,
+      dataset: { leagueId, seasonId, teamId, teamCode },
     });
 
     this.form = new Form({
       $target: this.content,
       isCustom: false,
+      dataset: { leagueId, seasonId, teamId, teamCode },
     });
   }
 
-  renderCustomPagePlaceholder({ contentTypes }) {
+  renderCustomPagePlaceholder({ contents }) {
     // clear
     this.content.innerHTML = "";
 
-    // clear data
-    this.content.dataset.leagueId = this.content.dataset.seasonId = this.content.dataset.teamId =
-      "";
-
     // prettier-ignore
-    return contentTypes.map((type) => {
-      switch (type) {
+    return contents.map((content) => {
+      const { type: contentType, ...dataset } = content;
+      switch (contentType) {
         case "standings":
-          return new Standings({$target: this.content, isCustom: true});
+          return new Standings({$target: this.content, isCustom: true, dataset});
         case "matchResults":
-          return new Matches({$target: this.content, isCustom: true, type: "Results"});
+          return new Matches({$target: this.content, isCustom: true, type: "Results", dataset});
         case "matchUpcoming":
-          return new Matches({$target: this.content, isCustom: true, type: "Upcoming"});
+          return new Matches({$target: this.content, isCustom: true, type: "Upcoming", dataset});
         case "topScorers":
-          return new Matches({$target: this.content, isCustom: true});
+          return new TopScorers({$target: this.content, isCustom: true, dataset});
         case "teamStanding":
-          return new TeamStanding({$target: this.content, isCustom: true});
+          return new TeamStanding({$target: this.content, isCustom: true, dataset});
         case "nextMatch":
-          return new NextMatch({$target: this.content, isCustom: true});
+          return new NextMatch({$target: this.content, isCustom: true, dataset});
         case "form":
-          return new Form({$target: this.content, isCustom: true});
+          return new Form({$target: this.content, isCustom: true, dataset});
       }
     });
   }

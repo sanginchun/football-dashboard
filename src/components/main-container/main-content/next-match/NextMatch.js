@@ -4,8 +4,11 @@ import AddButton from "../add-button/AddButton";
 import { formatDate, formatTeamName } from "../../../../helper";
 
 class NextMatch {
-  constructor({ $target, isCustom }) {
+  constructor({ $target, isCustom, dataset }) {
     this.nextMatch = this._template();
+    Object.keys(dataset).forEach(
+      (key) => (this.nextMatch.dataset[key] = dataset[key])
+    );
 
     if (!isCustom)
       new AddButton({ $target: this.nextMatch.querySelector(".header") });

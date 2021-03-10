@@ -4,8 +4,11 @@ import AddButton from "../add-button/AddButton";
 import { formatTeamName } from "../../../../helper";
 
 class Standings {
-  constructor({ $target, isCustom }) {
+  constructor({ $target, isCustom, dataset }) {
     this.standings = this._template();
+    Object.keys(dataset).forEach(
+      (key) => (this.standings.dataset[key] = dataset[key])
+    );
 
     if (!isCustom)
       new AddButton({ $target: this.standings.querySelector(".header") });

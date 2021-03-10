@@ -4,9 +4,12 @@ import AddButton from "../add-button/AddButton";
 import { DatePicker } from "../date-picker/DatePicker";
 
 class Matches {
-  constructor({ $target, isCustom, type }) {
+  constructor({ $target, isCustom, type, dataset }) {
     this.type = type;
     this.matches = this._template();
+    Object.keys(dataset).forEach(
+      (key) => (this.matches.dataset[key] = dataset[key])
+    );
 
     if (!isCustom)
       new AddButton({ $target: this.matches.querySelector(".header") });

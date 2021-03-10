@@ -3,8 +3,11 @@ import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
 
 class TeamStanding {
-  constructor({ $target, isCustom }) {
+  constructor({ $target, isCustom, dataset }) {
     this.teamStanding = this._template();
+    Object.keys(dataset).forEach(
+      (key) => (this.teamStanding.dataset[key] = dataset[key])
+    );
 
     if (!isCustom)
       new AddButton({ $target: this.teamStanding.querySelector(".header") });
@@ -39,6 +42,7 @@ class TeamStanding {
     this.teamStanding
       .querySelector(".body .current")
       .scrollIntoView({ block: "center" });
+    window.scroll(0, 0);
     this.spinner.toggle();
   }
 
