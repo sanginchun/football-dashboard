@@ -205,8 +205,15 @@ class App {
     window.scroll(0, 0);
     this.sidebar.mainNav.spinner.toggle();
 
-    this.mainContainer.controller.showController();
     this.mainContainer.header.renderTitle("Custom");
+    if (this.state.custom.length) {
+      this.mainContainer.controller.showController();
+    } else {
+      this.mainContainer.controller.hideController();
+      this.mainContainer.content.renderNoCustomMessage();
+      this.sidebar.mainNav.spinner.toggle();
+      return;
+    }
 
     const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder({
       contents: this.state.custom.slice(),
@@ -391,6 +398,8 @@ class App {
 
         this.state.custom.push(content);
       });
+
+      if (!this.state.custom.length) this.handleClickCustom();
     }
   }
 

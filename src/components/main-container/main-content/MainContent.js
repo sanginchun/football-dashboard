@@ -180,6 +180,20 @@ class MainContent {
     });
   }
 
+  renderNoCustomMessage() {
+    this.content.innerHTML = `
+    <article class="card half">
+      <div class="header">
+        <h3>No contents yet ❗</h3>
+      </div>
+      <div class="body">
+        <div class="steps">
+          <h4 class="step">You can customize this page by adding contents. 🙂</h4>
+        </div>
+      </div>
+    </article>`;
+  }
+
   activateEditMode() {
     this.content.querySelectorAll(".card .btn-checkbox").forEach((btn) => {
       btn.style.display = "inline-block";
