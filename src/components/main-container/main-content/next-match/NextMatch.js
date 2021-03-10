@@ -1,17 +1,19 @@
 import "./NextMatch.css";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
+import Checkbox from "../checkbox/Checkbox";
 import { formatDate, formatTeamName } from "../../../../helper";
 
 class NextMatch {
-  constructor({ $target, isCustom, dataset }) {
+  constructor({ $target, isCustom, title, dataset }) {
+    this.titleSpan = title;
     this.nextMatch = this._template();
     Object.keys(dataset).forEach(
       (key) => (this.nextMatch.dataset[key] = dataset[key])
     );
 
-    if (!isCustom)
-      new AddButton({ $target: this.nextMatch.querySelector(".header") });
+    const controlButton = isCustom ? Checkbox() : AddButton();
+    this.nextMatch.querySelector(".header").appendChild(controlButton);
 
     this.spinner = new Spinner({
       $target: this.nextMatch,
@@ -21,18 +23,20 @@ class NextMatch {
   }
 
   _template() {
-    const div = document.createElement("div");
-    div.className = "card half next-match";
-    div.setAttribute("data-type", "nextMatch");
+    const article = document.createElement("article");
+    article.className = "card half next-match";
+    article.setAttribute("data-type", "nextMatch");
 
-    div.innerHTML = `
+    article.innerHTML = `
       <div class="header">
-        <h3 class="title">Next Match</h3>
+        <h3 class="title">Next Match${
+          this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
+        }</h3>
       </div>
       <div class="body"></div>
     `;
 
-    return div;
+    return article;
   }
 
   render({ nextMatchData, teamCode, teamsDataByName }) {

@@ -1,18 +1,20 @@
 import "./Matches.css";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
+import Checkbox from "../checkbox/Checkbox";
 import { DatePicker } from "../date-picker/DatePicker";
 
 class Matches {
-  constructor({ $target, isCustom, type, dataset }) {
+  constructor({ $target, isCustom, type, title, dataset }) {
+    this.titleSpan = title;
     this.type = type;
     this.matches = this._template();
     Object.keys(dataset).forEach(
       (key) => (this.matches.dataset[key] = dataset[key])
     );
 
-    if (!isCustom)
-      new AddButton({ $target: this.matches.querySelector(".header") });
+    const controlButton = isCustom ? Checkbox() : AddButton();
+    this.matches.querySelector(".header").appendChild(controlButton);
 
     this.spinner = new Spinner({
       $target: this.matches,
@@ -22,18 +24,20 @@ class Matches {
   }
 
   _template() {
-    const div = document.createElement("div");
-    div.className = `card half matches ${this.type.toLowerCase()}`;
-    div.setAttribute("data-type", `match${this.type}`);
+    const article = document.createElement("article");
+    article.className = `card half matches ${this.type.toLowerCase()}`;
+    article.setAttribute("data-type", `match${this.type}`);
 
-    div.innerHTML = `
+    article.innerHTML = `
       <div class="header">
-        <h3 class="title">${this.type}</h3>
+        <h3 class="title">${this.type}${
+      this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
+    }</h3>
       </div>
       <div class="body"></div>
     `;
 
-    return div;
+    return article;
   }
 
   render({ matchesData, teamsDataByName }) {

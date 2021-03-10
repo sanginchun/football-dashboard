@@ -7,7 +7,14 @@ import NextMatch from "./next-match/NextMatch";
 import Form from "./form/Form";
 
 class MainContent {
-  constructor({ $target, onClickLeague, onClickTeam, onClickAddBtn }) {
+  constructor({
+    $target,
+    onClickLeague,
+    onClickTeam,
+    onClickCheckbox,
+    onClickAddBtn,
+  }) {
+    this.onClickCheckbox = onClickCheckbox;
     this.content = this._template();
 
     // on click team
@@ -25,22 +32,55 @@ class MainContent {
       if (!e.target.closest(".btn-add")) return;
 
       // get content info
+      const title = document.querySelector(".main-header .title").textContent;
       const { type, leagueId, seasonId, teamId, teamCode } = e.target.closest(
         ".card"
       ).dataset;
 
-      onClickAddBtn({ type, leagueId, seasonId, teamId, teamCode });
+      onClickAddBtn({
+        type,
+        leagueId,
+        seasonId,
+        teamId,
+        teamCode,
+        title,
+        isAdded: !e.target.classList.contains("added"),
+      });
+    });
+
+    // on click checkbox
+    this.content.addEventListener("change", (e) => {
+      if (!e.target.closest(".btn-checkbox")) return;
+
+      const targetEl = e.target.closest(".card");
+      const isSelected = e.target.checked;
+
+      onClickCheckbox({ targetEl, isSelected });
+    });
+
+    // on click title span
+    this.content.addEventListener("click", (e) => {
+      if (!e.target.closest(".title span")) return;
+
+      // get content info
+      const { leagueId, seasonId, teamId, teamCode } = e.target.closest(
+        ".card"
+      ).dataset;
+
+      teamId
+        ? onClickTeam({ leagueId, seasonId, teamId, teamCode })
+        : onClickLeague({ leagueId, seasonId });
     });
 
     $target.appendChild(this.content);
   }
 
   _template() {
-    const div = document.createElement("header");
-    div.className = "main-content";
+    const section = document.createElement("section");
+    section.className = "main-content";
 
-    div.innerHTML = `
-    <div class="card full landing">
+    section.innerHTML = `
+    <article class="card full landing">
       <div class="header">
         <h3>How To Use</h3>
       </div>
@@ -53,9 +93,9 @@ class MainContent {
           <h4 class="contact">- Please let me know if something goes wrong -><a href="mailto:sanginchun91@gmail.com">Contact</a></h4>
         </div>
       </div>
-    </div>`;
+    </article>`;
 
-    return div;
+    return section;
   }
 
   renderLeaguePagePlaceholder({ leagueId, seasonId }) {
@@ -120,24 +160,38 @@ class MainContent {
 
     // prettier-ignore
     return contents.map((content) => {
-      const { type: contentType, ...dataset } = content;
+      const { type: contentType, title, ...dataset } = content;
       switch (contentType) {
         case "standings":
-          return new Standings({$target: this.content, isCustom: true, dataset});
+          return new Standings({$target: this.content, isCustom: true, title, dataset});
         case "matchResults":
-          return new Matches({$target: this.content, isCustom: true, type: "Results", dataset});
+          return new Matches({$target: this.content, isCustom: true, type: "Results", title, dataset});
         case "matchUpcoming":
-          return new Matches({$target: this.content, isCustom: true, type: "Upcoming", dataset});
+          return new Matches({$target: this.content, isCustom: true, type: "Upcoming", title, dataset});
         case "topScorers":
-          return new TopScorers({$target: this.content, isCustom: true, dataset});
+          return new TopScorers({$target: this.content, isCustom: true, title, dataset});
         case "teamStanding":
-          return new TeamStanding({$target: this.content, isCustom: true, dataset});
+          return new TeamStanding({$target: this.content, isCustom: true, title, dataset});
         case "nextMatch":
-          return new NextMatch({$target: this.content, isCustom: true, dataset});
+          return new NextMatch({$target: this.content, isCustom: true, title, dataset});
         case "form":
-          return new Form({$target: this.content, isCustom: true, dataset});
+          return new Form({$target: this.content, isCustom: true, title, dataset});
       }
     });
+  }
+
+  activateEditMode() {
+    this.content.querySelectorAll(".card .btn-checkbox").forEach((btn) => {
+      btn.style.display = "inline-block";
+    });
+    this.content.style.opacity = "0.6";
+  }
+
+  endEditMode() {
+    this.content.querySelectorAll(".card .btn-checkbox").forEach((btn) => {
+      btn.style.display = "none";
+    });
+    this.content.style = "";
   }
 
   toggleAddBtn({ type, isAdded }) {
@@ -145,7 +199,15 @@ class MainContent {
       `.card[data-type="${type}"] .btn-add`
     );
     target.classList.toggle("added");
-    target.textContent = isAdded ? "Added" : "Add";
+    target.textContent = isAdded ? "Undo" : "Add";
+  }
+
+  toggleCheckboxAll({ isSelect }) {
+    this.content.querySelectorAll(`.card`).forEach((card) => {
+      const checkbox = card.querySelector(".btn-checkbox");
+      checkbox.checked = isSelect;
+      this.onClickCheckbox({ targetEl: card, isSelected: checkbox.checked });
+    });
   }
 }
 

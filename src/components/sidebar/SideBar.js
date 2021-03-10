@@ -19,9 +19,19 @@ class SideBar {
   }
 
   _template() {
-    const div = document.createElement("div");
-    div.className = "sidebar";
-    return div;
+    const aside = document.createElement("aside");
+    aside.className = "sidebar";
+    return aside;
+  }
+
+  activateEditMode() {
+    this.sideBar.style.cursor = "default";
+    this.sideBar.style.pointerEvents = "none";
+    this.sideBar.style.opacity = "0.6";
+  }
+
+  endEditMode() {
+    this.sideBar.style = "";
   }
 }
 

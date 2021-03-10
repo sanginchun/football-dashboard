@@ -1,0 +1,69 @@
+.controller {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.controller.editing {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.controller.hide {
+  display: none;
+}
+
+.control-btns {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid var(--almost-white);
+  border-radius: 0.3rem;
+  box-shadow: 0 0.75rem 1.5rem rgb(18 38 63 / 3%);
+  padding: 0.7rem 1rem;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.controller.editing .control-btns {
+  visibility: visible;
+  opacity: 1;
+}
+
+.control-btns label {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.control-btns .control-btn {
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.control-btns .control-btn[data-type="select"] {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 1rem;
+}
+
+.control-btns .control-btn[data-type="left"],
+.control-btns .control-btn[data-type="right"] {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.btn-edit {
+  margin-left: auto;
+  transition: all 0.2s;
+}
+
+.controller.editing .btn-edit {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  color: #fff;
+  background-color: var(--main-color);
+}

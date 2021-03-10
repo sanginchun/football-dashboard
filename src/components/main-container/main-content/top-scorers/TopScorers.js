@@ -1,17 +1,19 @@
 import "./TopScorers.css";
 import AddButton from "../add-button/AddButton";
+import Checkbox from "../checkbox/Checkbox";
 import Spinner from "../../../spinner/Spinner";
 import { formatName } from "../../../../helper";
 
 class TopScorers {
-  constructor({ $target, isCustom, dataset }) {
+  constructor({ $target, isCustom, title, dataset }) {
+    this.titleSpan = title;
     this.topScorers = this._template();
     Object.keys(dataset).forEach(
       (key) => (this.topScorers.dataset[key] = dataset[key])
     );
 
-    if (!isCustom)
-      new AddButton({ $target: this.topScorers.querySelector(".header") });
+    const controlButton = isCustom ? Checkbox() : AddButton();
+    this.topScorers.querySelector(".header").appendChild(controlButton);
 
     this.spinner = new Spinner({
       $target: this.topScorers,
@@ -21,18 +23,20 @@ class TopScorers {
   }
 
   _template() {
-    const div = document.createElement("div");
-    div.className = `card half top-scorers`;
-    div.setAttribute("data-type", `topScorers`);
+    const article = document.createElement("article");
+    article.className = `card half top-scorers`;
+    article.setAttribute("data-type", `topScorers`);
 
-    div.innerHTML = `
+    article.innerHTML = `
       <div class="header">
-        <h3 class="title">Top Scorers</h3>
+        <h3 class="title">Top Scorers${
+          this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
+        }</h3>
       </div>
       <div class="body"></div>
     `;
 
-    return div;
+    return article;
   }
 
   render({ topScorersData, teamsDataByName }) {

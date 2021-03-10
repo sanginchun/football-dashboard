@@ -13,7 +13,7 @@ class MainHeader {
 
     header.innerHTML = `
       <div class="main-header__title">
-        <h2>Welcome to Football Dashboard !</h2>
+        <h2 class="title">Welcome to Football Dashboard !</h2>
       </div>`;
 
     return header;

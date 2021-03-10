@@ -1,17 +1,19 @@
 import "./Form.css";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
+import Checkbox from "../checkbox/Checkbox";
 import { formatDate } from "../../../../helper";
 
 class Form {
-  constructor({ $target, isCustom, dataset }) {
+  constructor({ $target, isCustom, dataset, title }) {
+    this.titleSpan = title;
     this.form = this._template();
     Object.keys(dataset).forEach(
       (key) => (this.form.dataset[key] = dataset[key])
     );
 
-    if (!isCustom)
-      new AddButton({ $target: this.form.querySelector(".header") });
+    const controlButton = isCustom ? Checkbox() : AddButton();
+    this.form.querySelector(".header").appendChild(controlButton);
 
     this.spinner = new Spinner({
       $target: this.form,
@@ -21,18 +23,20 @@ class Form {
   }
 
   _template() {
-    const div = document.createElement("div");
-    div.className = "card full form";
-    div.setAttribute("data-type", "form");
+    const article = document.createElement("article");
+    article.className = "card full form";
+    article.setAttribute("data-type", "form");
 
-    div.innerHTML = `
+    article.innerHTML = `
       <div class="header">
-        <h3 class="title">Form</h3>
+        <h3 class="title">Form${
+          this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
+        }</h3>
       </div>
       <div class="body"></div>
     `;
 
-    return div;
+    return article;
   }
 
   render({ matchesData, teamCode, teamsDataByName }) {

@@ -33,6 +33,17 @@
   padding: 1rem 2rem;
   border-bottom: 1px solid var(--almost-white);
 }
+.card .header .title {
+  display: flex;
+  align-items: center;
+}
+
+.card .header .title span {
+  cursor: pointer;
+  margin-left: 1rem;
+  font-size: 0.8rem;
+  color: var(--medium-grey);
+}
 
 .card .body {
   padding: 1rem 2rem;

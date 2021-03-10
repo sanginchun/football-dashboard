@@ -7,10 +7,14 @@ import MainContainer from "./components/main-container/MainContainer";
 class App {
   constructor($target) {
     // initial state
-    this.state = { custom: JSON.parse(localStorage.getItem("custom")) || [] };
-    window.addEventListener("beforeunload", () => {
-      localStorage.setItem("custom", JSON.stringify(this.state.custom));
-    });
+    this.state = {
+      custom: JSON.parse(localStorage.getItem("custom")) || [],
+      selectedEl: new Map(),
+      isEditing: false,
+    };
+    // window.addEventListener("beforeunload", () => {
+    //   localStorage.setItem("custom", JSON.stringify(this.state.custom));
+    // });
 
     // sidebar
     this.sidebar = new SideBar({
@@ -26,6 +30,9 @@ class App {
       onClickLeague: this.handleClickLeague.bind(this),
       onClickTeam: this.handleClickTeam.bind(this),
       onClickAddBtn: this.handleClickAddBtn.bind(this),
+      onClickCheckbox: this.handleClickCheckbox.bind(this),
+      onClickEditBtn: this.handleClickEditBtn.bind(this),
+      onClickController: this.handleClickController.bind(this),
     });
 
     this.sidebar.mainNav.spinner.toggle();
@@ -52,24 +59,22 @@ class App {
       });
   }
 
-  // prettier-ignore
   handleClickNav(type) {
     if (type === "custom") {
-      window.scroll(0, 0);
-      this.sidebar.mainNav.spinner.toggle();
-
-      this.mainContainer.header.renderTitle("Custom");
-      
-      const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder({ contents: this.state.custom.slice(), });
-      this.handleClickCustom(contentsRef).then(() => this.sidebar.mainNav.spinner.toggle());
-    }
-    else {
+      this.handleClickCustom();
+    } else {
       this.sidebar.mainNav.toggleNested(type);
     }
   }
 
   async handleClickLeague({ leagueId, seasonId }) {
+    if (this.state.isEditing) {
+      alert("You must finish editing first.");
+      return;
+    }
+
     window.scroll(0, 0);
+    this.mainContainer.controller.hideController();
     this.sidebar.mainNav.spinner.toggle();
 
     // render page title & content placeholders
@@ -133,7 +138,12 @@ class App {
   }
 
   async handleClickTeam({ leagueId, seasonId, teamId, teamCode }) {
+    if (this.state.isEditing) {
+      alert("You must finish editing first.");
+      return;
+    }
     window.scroll(0, 0);
+    this.mainContainer.controller.hideController();
     this.sidebar.mainNav.spinner.toggle();
 
     // render page title & content placeholders
@@ -191,8 +201,18 @@ class App {
     });
   }
 
-  async handleClickCustom(contentsRef) {
-    return Promise.all(
+  async handleClickCustom() {
+    window.scroll(0, 0);
+    this.sidebar.mainNav.spinner.toggle();
+
+    this.mainContainer.controller.showController();
+    this.mainContainer.header.renderTitle("Custom");
+
+    const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder({
+      contents: this.state.custom.slice(),
+    });
+
+    await Promise.all(
       contentsRef.map(async (content, i) => {
         const {
           type,
@@ -226,39 +246,8 @@ class App {
         });
       })
     );
-  }
 
-  handleClickAddBtn({ type, leagueId, seasonId, teamId, teamCode }) {
-    const content = teamId
-      ? { type, leagueId, seasonId, teamId, teamCode }
-      : { type, leagueId, seasonId };
-
-    // check if already in custom
-    let index = -1;
-    this.state.custom.forEach((val, i) => {
-      const { type, leagueId, teamId } = val;
-      if (teamId) {
-        if (content.type === type && content.teamId === teamId) {
-          index = i;
-        }
-      } else {
-        if (content.type === type && content.leagueId === leagueId) {
-          index = i;
-        }
-      }
-    });
-
-    if (index === -1) {
-      this.state.custom = this.state.custom.concat([content]);
-      this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
-    } else {
-      this.state.custom = this.state.custom
-        .slice(0, index)
-        .concat(this.state.custom.slice(index + 1));
-      this.mainContainer.content.toggleAddBtn({ type, isAdded: false });
-    }
-
-    console.log(this.state.custom);
+    this.sidebar.mainNav.spinner.toggle();
   }
 
   // prettier-ignore
@@ -331,6 +320,115 @@ class App {
               teamsDataByName,
             });
           });
+    }
+  }
+
+  handleClickAddBtn({
+    type,
+    leagueId,
+    seasonId,
+    teamId,
+    teamCode,
+    title,
+    isAdded,
+  }) {
+    const content = teamId
+      ? { type, leagueId, seasonId, teamId, teamCode, title }
+      : { type, leagueId, seasonId, title };
+
+    if (isAdded) {
+      this.state.custom = this.state.custom.concat([content]);
+      this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
+    }
+    // find index
+    else {
+      const index = this.state.custom.findIndex((val) => {
+        return (
+          (teamId && val.teamId === teamId && val.type === type) ||
+          (!teamId && val.leagueId === leagueId && val.type === type)
+        );
+      });
+      this.state.custom = this.state.custom
+        .slice(0, index)
+        .concat(this.state.custom.slice(index + 1));
+      this.mainContainer.content.toggleAddBtn({ type, isAdded: false });
+    }
+  }
+
+  handleClickCheckbox({ targetEl, isSelected }) {
+    isSelected
+      ? this.state.selectedEl.set(targetEl, true)
+      : this.state.selectedEl.delete(targetEl);
+
+    this.mainContainer.controller.toggleSelectAll({
+      isAll: this.state.selectedEl.size === this.state.custom.length,
+    });
+  }
+
+  handleClickEditBtn({ isEditing }) {
+    // reset controller
+    this.state.isEditing = isEditing;
+    this.state.selectedEl = new Map();
+    this.mainContainer.content.toggleCheckboxAll({ isSelect: false });
+
+    if (isEditing) {
+      this.mainContainer.content.activateEditMode();
+      this.sidebar.activateEditMode();
+    }
+    // done editing
+    else {
+      this.mainContainer.content.endEditMode();
+      this.sidebar.endEditMode();
+
+      // reset custom
+      this.state.custom = [];
+      document.querySelectorAll(".card").forEach((card) => {
+        const { type, leagueId, seasonId, teamId, teamCode } = card.dataset;
+        const title = card.querySelector(".title span").textContent;
+        const content = teamId
+          ? { type, leagueId, seasonId, teamId, teamCode, title }
+          : { type, leagueId, seasonId, title };
+
+        this.state.custom.push(content);
+      });
+    }
+  }
+
+  handleClickController({ type, isSelect }) {
+    if (!this.state.selectedEl.size && type !== "select") return;
+    switch (type) {
+      case "select":
+        this.mainContainer.content.toggleCheckboxAll({ isSelect });
+        break;
+      case "left":
+        this.state.selectedEl.forEach((_, el) => {
+          const prevEl = el.previousSibling;
+          if (prevEl && !this.state.selectedEl.get(prevEl)) {
+            prevEl.insertAdjacentElement("beforebegin", el);
+            el.scrollIntoView({ block: "center" });
+          }
+        });
+        break;
+      case "right":
+        this.state.selectedEl.forEach((_, el) => {
+          const nextEl = el.nextSibling;
+          if (nextEl && !this.state.selectedEl.get(nextEl)) {
+            nextEl.insertAdjacentElement("afterend", el);
+            el.scrollIntoView({ block: "center" });
+          }
+        });
+        break;
+      // prettier-ignore
+      case "remove":
+        const isConfirmed = confirm(`Confirm: Delete ${this.state.selectedEl.size} content${this.state.selectedEl.size > 1 ? "s" : ""}`);
+
+        if (isConfirmed) {
+          this.state.selectedEl.forEach((_, el) => {
+            el.remove();
+          });
+          this.mainContainer.controller.toggleSelectAll( { isAll: false });
+        }
+        break;
     }
   }
 
