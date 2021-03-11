@@ -1,6 +1,10 @@
 import { api } from "./api/api.js";
-import { LEAGUE_IDS, MAX_TOP_SCORERS, MAX_FORM_RESULTS } from "./config.js";
-import { getLocalDate } from "./helper.js";
+import {
+  LEAGUE_IDS,
+  MAX_TOP_SCORERS,
+  MAX_FORM_RESULTS,
+} from "./others/config.js";
+import { getLocalDate } from "./others/helper.js";
 
 export const model = {
   async getLeagueData() {

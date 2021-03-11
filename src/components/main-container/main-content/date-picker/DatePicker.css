@@ -4,5 +4,6 @@
   border: 1px solid var(--light-grey);
   font-family: "Roboto", sans-serif;
   color: var(--dark-grey);
+  background-color: #fff;
   border-radius: 4px;
 }

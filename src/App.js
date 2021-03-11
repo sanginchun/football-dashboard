@@ -1,4 +1,5 @@
 import "./App.css";
+import firebase from "./others/firebase";
 import { api } from "./api/api.js";
 import { model } from "./model.js";
 import SideBar from "./components/sidebar/SideBar";

@@ -1,6 +1,6 @@
 import "./MainNav.css";
 import Spinner from "../../spinner/Spinner";
-import { formatTeamName } from "../../../helper";
+import { formatTeamName } from "../../../others/helper.js";
 
 class MainNav {
   constructor({ $target, onClickNav, onClickLeague, onClickTeam }) {

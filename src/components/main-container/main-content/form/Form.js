@@ -2,7 +2,7 @@ import "./Form.css";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
 import Checkbox from "../checkbox/Checkbox";
-import { formatDate } from "../../../../helper";
+import { formatDate } from "../../../../others/helper.js";
 
 class Form {
   constructor({ $target, isCustom, dataset, title }) {

@@ -2,7 +2,7 @@ import "./NextMatch.css";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
 import Checkbox from "../checkbox/Checkbox";
-import { formatDate, formatTeamName } from "../../../../helper";
+import { formatDate, formatTeamName } from "../../../../others/helper.js";
 
 class NextMatch {
   constructor({ $target, isCustom, title, dataset }) {

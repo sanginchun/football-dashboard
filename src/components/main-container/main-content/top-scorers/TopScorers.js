@@ -2,7 +2,7 @@ import "./TopScorers.css";
 import AddButton from "../add-button/AddButton";
 import Checkbox from "../checkbox/Checkbox";
 import Spinner from "../../../spinner/Spinner";
-import { formatName } from "../../../../helper";
+import { formatName } from "../../../../others/helper.js";
 
 class TopScorers {
   constructor({ $target, isCustom, title, dataset }) {

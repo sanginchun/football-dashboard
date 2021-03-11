@@ -1,7 +1,7 @@
 import "./Standings.css";
+import { formatTeamName } from "../../../../others/helper.js";
 import Spinner from "../../../spinner/Spinner";
 import AddButton from "../add-button/AddButton";
-import { formatTeamName } from "../../../../helper";
 import Checkbox from "../checkbox/Checkbox";
 
 class Standings {
