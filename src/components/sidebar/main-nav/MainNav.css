@@ -86,3 +86,23 @@
   top: 10rem;
   left: 10rem;
 }
+
+@media screen and (max-width: 850px) {
+  .main-nav {
+    padding-left: 2rem;
+  }
+
+  .main-nav__items i {
+    margin-left: 8rem;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .main-nav {
+    padding-left: 2.5rem;
+  }
+
+  .main-nav__items i {
+    margin-left: 7rem;
+  }
+}

@@ -14,3 +14,19 @@
   width: max-content;
   padding-left: 0.9rem;
 }
+
+@media screen and (max-width: 850px) {
+  .top-scorers .body {
+    overflow: auto;
+  }
+
+  .top-scorers .player {
+    max-width: 10rem;
+  }
+
+  .top-scorers .player h5 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

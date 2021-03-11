@@ -85,3 +85,27 @@ table tbody th {
 .landing .contact a:hover {
   color: var(--dark-grey);
 }
+
+@media screen and (max-width: 550px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    grid-gap: 0;
+  }
+
+  .card {
+    grid-column: 1 / 2 !important;
+    margin-bottom: 1rem;
+  }
+
+  .card .header {
+    padding: 1rem;
+  }
+
+  .card .body {
+    padding: 1rem;
+  }
+
+  .card .header .title span {
+    display: none;
+  }
+}

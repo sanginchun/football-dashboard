@@ -45,3 +45,15 @@ a {
 .btn:hover {
   cursor: pointer;
 }
+
+@media screen and (min-width: 1600px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+@media screen and (max-width: 850px) {
+  html {
+    font-size: 15px;
+  }
+}

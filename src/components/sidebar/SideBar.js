@@ -1,21 +1,29 @@
 import "./SideBar.css";
 import Logo from "./logo/Logo";
 import MainNav from "./main-nav/MainNav";
+import SidebarBtn from "./sidebar-btn/SidebarBtn";
 
 class SideBar {
   constructor({ $target, onClickNav, onClickLeague, onClickTeam }) {
-    this.sideBar = this._template();
+    this.sidebar = this._template();
 
-    new Logo({ $target: this.sideBar });
+    // sidebar toggle btn
+    this.sidebarBtn = SidebarBtn();
+    this.sidebarBtn.addEventListener("click", () => {
+      this.toggle();
+    });
+    this.sidebar.appendChild(this.sidebarBtn);
+
+    new Logo({ $target: this.sidebar });
 
     this.mainNav = new MainNav({
-      $target: this.sideBar,
+      $target: this.sidebar,
       onClickNav,
       onClickLeague,
       onClickTeam,
     });
 
-    $target.appendChild(this.sideBar);
+    $target.appendChild(this.sidebar);
   }
 
   _template() {
@@ -25,13 +33,17 @@ class SideBar {
   }
 
   activateEditMode() {
-    this.sideBar.style.cursor = "default";
-    this.sideBar.style.pointerEvents = "none";
-    this.sideBar.style.opacity = "0.6";
+    this.sidebar.style.cursor = "default";
+    this.sidebar.style.pointerEvents = "none";
+    this.sidebar.style.opacity = "0.6";
   }
 
   endEditMode() {
-    this.sideBar.style = "";
+    this.sidebar.style = "";
+  }
+
+  toggle() {
+    this.sidebar.classList.toggle("show");
   }
 }
 

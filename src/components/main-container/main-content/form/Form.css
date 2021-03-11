@@ -81,3 +81,23 @@
   font-size: 0.7em;
   margin: 0 6px 0 3px;
 }
+
+@media screen and (max-width: 850px) {
+  .form {
+    grid-column: 1 / 2 !important;
+  }
+
+  .form .body {
+    overflow: auto;
+  }
+
+  .form .outer-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form .outer-container .container {
+    margin: 0 0 1rem 0;
+    padding: 1rem;
+  }
+}

@@ -13,19 +13,6 @@ class App {
       isEditing: false,
     };
 
-    // maintain custom before unload
-    window.addEventListener("beforeunload", () => {
-      localStorage.setItem("custom", JSON.stringify(this.state.custom));
-    });
-
-    // route
-    window.addEventListener("load", () => {
-      this.handleLoad(window.location.pathname);
-    });
-    window.addEventListener("popstate", (e) => {
-      this.handlePopState(e);
-    });
-
     // sidebar
     this.sidebar = new SideBar({
       $target,
@@ -43,6 +30,19 @@ class App {
       onClickCheckbox: this.handleClickCheckbox.bind(this),
       onClickEditBtn: this.handleClickEditBtn.bind(this),
       onClickController: this.handleClickController.bind(this),
+    });
+
+    // maintain custom before unload
+    window.addEventListener("beforeunload", () => {
+      localStorage.setItem("custom", JSON.stringify(this.state.custom));
+    });
+
+    // route
+    window.addEventListener("load", () => {
+      this.handleLoad(window.location.pathname);
+    });
+    window.addEventListener("popstate", (e) => {
+      this.handlePopState(e);
     });
 
     // init cache

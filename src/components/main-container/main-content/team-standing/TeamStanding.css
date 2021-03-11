@@ -14,7 +14,6 @@
 .team-standing .container .info {
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: clip;
 }
 
 .team-standing .container .info .position {
@@ -38,4 +37,25 @@
 
 .team-standing .container .info .points span.units:first-child {
   margin-right: 5px;
+}
+
+@media screen and (max-width: 850px) {
+  .team-standing .body {
+    overflow: auto;
+  }
+
+  .team-standing .team {
+    grid-gap: 0.5rem;
+  }
+
+  .team-standing .team .logo {
+    width: 80%;
+  }
+
+  .team-standing .team .team-name {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }

@@ -6,8 +6,29 @@
   height: 100vh;
   padding: 2rem 0;
   overflow: hidden;
+  background-color: #fff;
+  z-index: 10;
 }
 
 .sidebar:hover {
   overflow: auto;
+}
+
+@media screen and (max-width: 1100px) {
+  .sidebar {
+    width: 28%;
+    transform: translateX(calc(-100% + 3rem));
+    transition: transform 0.5s;
+    overflow: auto;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .sidebar {
+    width: 55%;
+  }
 }
