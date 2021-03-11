@@ -12,9 +12,40 @@ class App {
       selectedEl: new Map(),
       isEditing: false,
     };
-    // window.addEventListener("beforeunload", () => {
-    //   localStorage.setItem("custom", JSON.stringify(this.state.custom));
-    // });
+
+    // maintain custom before unload
+    window.addEventListener("beforeunload", () => {
+      localStorage.setItem("custom", JSON.stringify(this.state.custom));
+    });
+
+    // route
+    window.addEventListener("load", () => {
+      const pathname = window.location.pathname;
+      // custom
+      if (pathname === "/custom") {
+        this.handleClickCustom(false);
+      }
+      // team or league
+      else if (pathname === "/league" || pathname === "team") {
+        const dataArgs = {};
+        const params = new URLSearchParams(
+          window.atob(window.location.search.slice(1))
+        );
+        for (const [key, value] of params) dataArgs[key] = value;
+
+        pathname === "/league"
+          ? this.handleClickLeague(dataArgs, false)
+          : this.handleClickTeam(dataArgs, false);
+      }
+      // redirect
+      else {
+        window.location = window.location.origin;
+      }
+    });
+
+    window.addEventListener("popstate", (e) => {
+      this.handlePopState(e);
+    });
 
     // sidebar
     this.sidebar = new SideBar({
@@ -35,20 +66,13 @@ class App {
       onClickController: this.handleClickController.bind(this),
     });
 
-    this.sidebar.mainNav.spinner.toggle();
-
     // init cache
-    api.initCache("football-dashboard").then(() => {
-      // initial data
-      this.initNav();
-    });
-  }
-
-  initNav() {
-    model
-      .getLeagueData()
-      .then((data) => {
-        this.sidebar.mainNav.renderLeague(data);
+    this.sidebar.mainNav.spinner.toggle();
+    api
+      .initCache("football-dashboard")
+      .then(() => {
+        // initial data
+        return this.initNav();
       })
       .catch((err) => {
         // handle error
@@ -59,6 +83,12 @@ class App {
       });
   }
 
+  /* navbar */
+  async initNav() {
+    const initialData = await model.getLeagueData();
+    this.sidebar.mainNav.renderLeague(initialData);
+  }
+
   handleClickNav(type) {
     if (type === "custom") {
       this.handleClickCustom();
@@ -67,18 +97,40 @@ class App {
     }
   }
 
-  async handleClickLeague({ leagueId, seasonId }) {
+  /* router */
+  handlePopState({ state }) {
+    if (!state) {
+      window.location = window.location.origin;
+      return;
+    }
+
+    if (state.hasOwnProperty("custom")) this.handleClickCustom(false);
+    else if (state.hasOwnProperty("teamId")) this.handleClickTeam(state, false);
+    else this.handleClickLeague(state, false);
+  }
+
+  /* load pages */
+  async handleClickLeague({ leagueId, seasonId }, pushState = true) {
     if (this.state.isEditing) {
       alert("You must finish editing first.");
       return;
     }
+
+    // push state
+    if (pushState)
+      window.history.pushState(
+        { leagueId, seasonId },
+        "",
+        `/league?${window.btoa(`leagueId=${leagueId}&seasonId=${seasonId}`)}`
+      );
 
     window.scroll(0, 0);
     this.mainContainer.controller.hideController();
     this.sidebar.mainNav.spinner.toggle();
 
     // render page title & content placeholders
-    this.mainContainer.header.renderTitle(await model.getLeagueName(leagueId));
+    const leagueName = await model.getLeagueName(leagueId);
+    this.mainContainer.header.renderTitle(leagueName);
     this.mainContainer.content.renderLeaguePagePlaceholder({
       leagueId,
       seasonId,
@@ -137,19 +189,32 @@ class App {
     });
   }
 
-  async handleClickTeam({ leagueId, seasonId, teamId, teamCode }) {
+  async handleClickTeam(
+    { leagueId, seasonId, teamId, teamCode },
+    pushState = true
+  ) {
     if (this.state.isEditing) {
       alert("You must finish editing first.");
       return;
     }
+
+    // push state
+    if (pushState)
+      window.history.pushState(
+        { leagueId, seasonId, teamId, teamCode },
+        "",
+        `/team?${window.btoa(
+          `leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
+        )}`
+      );
+
     window.scroll(0, 0);
     this.mainContainer.controller.hideController();
     this.sidebar.mainNav.spinner.toggle();
 
     // render page title & content placeholders
-    this.mainContainer.header.renderTitle(
-      await model.getTeamName(leagueId, teamId)
-    );
+    const teamName = await model.getTeamName(leagueId, teamId);
+    this.mainContainer.header.renderTitle(teamName);
     this.mainContainer.content.renderTeamPagePlaceholder({
       leagueId,
       seasonId,
@@ -201,7 +266,8 @@ class App {
     });
   }
 
-  async handleClickCustom() {
+  async handleClickCustom(pushState = true) {
+    if (pushState) window.history.pushState({ custom: true }, "", `/custom`);
     window.scroll(0, 0);
     this.sidebar.mainNav.spinner.toggle();
 
@@ -257,6 +323,7 @@ class App {
     this.sidebar.mainNav.spinner.toggle();
   }
 
+  /* render data */
   // prettier-ignore
   renderContent(data) {
     const { type, leagueId, seasonId, teamId, teamCode, standingsData, teamsData, teamsDataByName, caller, } = data;
@@ -330,6 +397,7 @@ class App {
     }
   }
 
+  /* handle button clicks */
   handleClickAddBtn({
     type,
     leagueId,
@@ -399,7 +467,7 @@ class App {
         this.state.custom.push(content);
       });
 
-      if (!this.state.custom.length) this.handleClickCustom();
+      if (!this.state.custom.length) this.handleClickCustom(false);
     }
   }
 
@@ -441,6 +509,7 @@ class App {
     }
   }
 
+  /* toggle buttons by state */
   toggleAddedContentAddBtns({ leagueId, teamId }) {
     let contentsToToggle;
 
