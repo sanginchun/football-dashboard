@@ -20,29 +20,8 @@ class App {
 
     // route
     window.addEventListener("load", () => {
-      const pathname = window.location.pathname;
-      // custom
-      if (pathname === "/custom") {
-        this.handleClickCustom(false);
-      }
-      // team or league
-      else if (pathname === "/league" || pathname === "team") {
-        const dataArgs = {};
-        const params = new URLSearchParams(
-          window.atob(window.location.search.slice(1))
-        );
-        for (const [key, value] of params) dataArgs[key] = value;
-
-        pathname === "/league"
-          ? this.handleClickLeague(dataArgs, false)
-          : this.handleClickTeam(dataArgs, false);
-      }
-      // redirect
-      else {
-        window.location = window.location.origin;
-      }
+      this.handleLoad(window.location.pathname);
     });
-
     window.addEventListener("popstate", (e) => {
       this.handlePopState(e);
     });
@@ -75,8 +54,7 @@ class App {
         return this.initNav();
       })
       .catch((err) => {
-        // handle error
-        console.log(err);
+        this.handleError(err);
       })
       .finally(() => {
         this.sidebar.mainNav.spinner.toggle();
@@ -98,229 +76,277 @@ class App {
   }
 
   /* router */
-  handlePopState({ state }) {
-    if (!state) {
-      window.location = window.location.origin;
-      return;
+  handleLoad(pathname) {
+    // home
+    if (pathname === "/") {
     }
+    // custom
+    else if (pathname === "/custom") {
+      this.handleClickCustom(false);
+    }
+    // team or league
+    else if (pathname === "/league" || pathname === "/team") {
+      try {
+        const dataArgs = {};
+        const params = new URLSearchParams(
+          window.atob(window.location.search.slice(1))
+        );
+        for (const [key, value] of params) dataArgs[key] = value;
 
-    if (state.hasOwnProperty("custom")) this.handleClickCustom(false);
-    else if (state.hasOwnProperty("teamId")) this.handleClickTeam(state, false);
-    else this.handleClickLeague(state, false);
+        pathname === "/league"
+          ? this.handleClickLeague(dataArgs, false)
+          : this.handleClickTeam(dataArgs, false);
+      } catch (err) {
+        alert("URL is not valid");
+        window.location = window.location.origin;
+      }
+    }
+    // redirect
+    else {
+      window.location = window.location.origin;
+    }
+  }
+
+  handlePopState({ state }) {
+    if (state && state.hasOwnProperty("custom")) this.handleClickCustom(false);
+    else if (state && state.hasOwnProperty("teamId"))
+      this.handleClickTeam(state, false);
+    else if (state && state.hasOwnProperty("leagueId"))
+      this.handleClickLeague(state, false);
+    else {
+      window.location = window.location.origin;
+    }
   }
 
   /* load pages */
   async handleClickLeague({ leagueId, seasonId }, pushState = true) {
-    if (this.state.isEditing) {
-      alert("You must finish editing first.");
-      return;
-    }
+    try {
+      if (this.state.isEditing) {
+        alert("You must finish editing first.");
+        return;
+      }
 
-    // push state
-    if (pushState)
-      window.history.pushState(
-        { leagueId, seasonId },
-        "",
-        `/league?${window.btoa(`leagueId=${leagueId}&seasonId=${seasonId}`)}`
-      );
+      // push state
+      if (pushState)
+        window.history.pushState(
+          { leagueId, seasonId },
+          "",
+          `/league?${window.btoa(`leagueId=${leagueId}&seasonId=${seasonId}`)}`
+        );
 
-    window.scroll(0, 0);
-    this.mainContainer.controller.hideController();
-    this.sidebar.mainNav.spinner.toggle();
+      window.scroll(0, 0);
+      this.mainContainer.controller.hideController();
+      this.sidebar.mainNav.spinner.toggle();
 
-    // render page title & content placeholders
-    const leagueName = await model.getLeagueName(leagueId);
-    this.mainContainer.header.renderTitle(leagueName);
-    this.mainContainer.content.renderLeaguePagePlaceholder({
-      leagueId,
-      seasonId,
-    });
+      // render page title & content placeholders
+      const leagueName = await model.getLeagueName(leagueId);
+      this.mainContainer.header.renderTitle(leagueName);
+      this.mainContainer.content.renderLeaguePagePlaceholder({
+        leagueId,
+        seasonId,
+      });
 
-    // toggle add buttons
-    this.toggleAddedContentAddBtns({ leagueId });
+      // toggle add buttons
+      this.toggleAddedContentAddBtns({ leagueId });
 
-    // get data needed before getting other data
-    const standingsData = await model.getStandingsData(leagueId, seasonId);
-    const {
-      teamsDataArr,
-      teamsData,
-      teamsDataByName,
-    } = await model.getTeamsData(leagueId, standingsData);
+      // get data needed before getting other data
+      const standingsData = await model.getStandingsData(leagueId, seasonId);
+      const {
+        teamsDataArr,
+        teamsData,
+        teamsDataByName,
+      } = await model.getTeamsData(leagueId, standingsData);
 
-    // render nav
-    this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
+      // render nav
+      this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
 
-    // render contents
-    const dataArgs = {
-      leagueId,
-      seasonId,
-      standingsData,
-      teamsData,
-      teamsDataByName,
-    };
+      // render contents
+      const dataArgs = {
+        leagueId,
+        seasonId,
+        standingsData,
+        teamsData,
+        teamsDataByName,
+      };
 
-    const standingsProm = this.renderContent({
-      type: "standings",
-      caller: this.mainContainer.content.standings,
-      ...dataArgs,
-    });
+      const standingsProm = this.renderContent({
+        type: "standings",
+        caller: this.mainContainer.content.standings,
+        ...dataArgs,
+      });
 
-    const matchResultsProm = this.renderContent({
-      type: "matchResults",
-      caller: this.mainContainer.content.matchResults,
-      ...dataArgs,
-    });
+      const matchResultsProm = this.renderContent({
+        type: "matchResults",
+        caller: this.mainContainer.content.matchResults,
+        ...dataArgs,
+      });
 
-    const matchUpcomingProm = this.renderContent({
-      type: "matchUpcoming",
-      caller: this.mainContainer.content.matchUpcoming,
-      ...dataArgs,
-    });
+      const matchUpcomingProm = this.renderContent({
+        type: "matchUpcoming",
+        caller: this.mainContainer.content.matchUpcoming,
+        ...dataArgs,
+      });
 
-    const topScorersProm = this.renderContent({
-      type: "topScorers",
-      caller: this.mainContainer.content.topScorers,
-      ...dataArgs,
-    });
+      const topScorersProm = this.renderContent({
+        type: "topScorers",
+        caller: this.mainContainer.content.topScorers,
+        ...dataArgs,
+      });
 
-    // prettier-ignore
-    Promise.all([ standingsProm, matchResultsProm, matchUpcomingProm, topScorersProm, ]).then(() => {
+      // prettier-ignore
+      Promise.all([ standingsProm, matchResultsProm, matchUpcomingProm, topScorersProm, ]).then(() => {
       this.sidebar.mainNav.spinner.toggle();
     });
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
   async handleClickTeam(
     { leagueId, seasonId, teamId, teamCode },
     pushState = true
   ) {
-    if (this.state.isEditing) {
-      alert("You must finish editing first.");
-      return;
-    }
+    try {
+      if (this.state.isEditing) {
+        alert("You must finish editing first.");
+        return;
+      }
 
-    // push state
-    if (pushState)
-      window.history.pushState(
-        { leagueId, seasonId, teamId, teamCode },
-        "",
-        `/team?${window.btoa(
-          `leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
-        )}`
+      // push state
+      if (pushState)
+        window.history.pushState(
+          { leagueId, seasonId, teamId, teamCode },
+          "",
+          `/team?${window.btoa(
+            `leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
+          )}`
+        );
+
+      window.scroll(0, 0);
+      this.mainContainer.controller.hideController();
+      this.sidebar.mainNav.spinner.toggle();
+
+      // render page title & content placeholders
+      const teamName = await model.getTeamName(leagueId, teamId);
+      this.mainContainer.header.renderTitle(teamName);
+      this.mainContainer.content.renderTeamPagePlaceholder({
+        leagueId,
+        seasonId,
+        teamId,
+        teamCode,
+      });
+
+      // toggle add buttons
+      this.toggleAddedContentAddBtns({ teamId });
+
+      // get data needed before getting other data
+      const standingsData = await model.getStandingsData(leagueId, seasonId);
+      const { teamsData, teamsDataByName } = await model.getTeamsData(
+        leagueId,
+        standingsData
       );
 
-    window.scroll(0, 0);
-    this.mainContainer.controller.hideController();
-    this.sidebar.mainNav.spinner.toggle();
+      // render contents
+      const dataArgs = {
+        leagueId,
+        seasonId,
+        teamId,
+        teamCode,
+        standingsData,
+        teamsData,
+        teamsDataByName,
+      };
 
-    // render page title & content placeholders
-    const teamName = await model.getTeamName(leagueId, teamId);
-    this.mainContainer.header.renderTitle(teamName);
-    this.mainContainer.content.renderTeamPagePlaceholder({
-      leagueId,
-      seasonId,
-      teamId,
-      teamCode,
-    });
+      const teamStandingProm = this.renderContent({
+        type: "teamStanding",
+        caller: this.mainContainer.content.teamStanding,
+        ...dataArgs,
+      });
 
-    // toggle add buttons
-    this.toggleAddedContentAddBtns({ teamId });
+      const nextMatchProm = this.renderContent({
+        type: "nextMatch",
+        caller: this.mainContainer.content.nextMatch,
+        ...dataArgs,
+      });
 
-    // get data needed before getting other data
-    const standingsData = await model.getStandingsData(leagueId, seasonId);
-    const { teamsData, teamsDataByName } = await model.getTeamsData(
-      leagueId,
-      standingsData
-    );
+      const formProm = this.renderContent({
+        type: "form",
+        caller: this.mainContainer.content.form,
+        ...dataArgs,
+      });
 
-    // render contents
-    const dataArgs = {
-      leagueId,
-      seasonId,
-      teamId,
-      teamCode,
-      standingsData,
-      teamsData,
-      teamsDataByName,
-    };
-
-    const teamStandingProm = this.renderContent({
-      type: "teamStanding",
-      caller: this.mainContainer.content.teamStanding,
-      ...dataArgs,
-    });
-
-    const nextMatchProm = this.renderContent({
-      type: "nextMatch",
-      caller: this.mainContainer.content.nextMatch,
-      ...dataArgs,
-    });
-
-    const formProm = this.renderContent({
-      type: "form",
-      caller: this.mainContainer.content.form,
-      ...dataArgs,
-    });
-
-    Promise.all([teamStandingProm, nextMatchProm, formProm]).then(() => {
-      this.sidebar.mainNav.spinner.toggle();
-    });
+      Promise.all([teamStandingProm, nextMatchProm, formProm]).then(() => {
+        this.sidebar.mainNav.spinner.toggle();
+      });
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
   async handleClickCustom(pushState = true) {
-    if (pushState) window.history.pushState({ custom: true }, "", `/custom`);
-    window.scroll(0, 0);
-    this.sidebar.mainNav.spinner.toggle();
-
-    this.mainContainer.header.renderTitle("Custom");
-    if (this.state.custom.length) {
-      this.mainContainer.controller.showController();
-    } else {
-      this.mainContainer.controller.hideController();
-      this.mainContainer.content.renderNoCustomMessage();
+    try {
+      if (pushState) window.history.pushState({ custom: true }, "", `/custom`);
+      window.scroll(0, 0);
       this.sidebar.mainNav.spinner.toggle();
-      return;
+
+      this.mainContainer.header.renderTitle("Custom");
+      if (this.state.custom.length) {
+        this.mainContainer.controller.showController();
+      } else {
+        this.mainContainer.controller.hideController();
+        this.mainContainer.content.renderNoCustomMessage();
+        this.sidebar.mainNav.spinner.toggle();
+        return;
+      }
+
+      const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder(
+        {
+          contents: this.state.custom.slice(),
+        }
+      );
+
+      await Promise.all(
+        contentsRef.map(async (content, i) => {
+          const {
+            type,
+            leagueId,
+            seasonId,
+            teamId,
+            teamCode,
+          } = this.state.custom[i];
+
+          // get data
+          const standingsData = await model.getStandingsData(
+            leagueId,
+            seasonId
+          );
+          const { teamsData, teamsDataByName } = await model.getTeamsData(
+            leagueId,
+            standingsData
+          );
+
+          const dataArgs = {
+            type,
+            leagueId,
+            seasonId,
+            teamId,
+            teamCode,
+            standingsData,
+            teamsData,
+            teamsDataByName,
+          };
+
+          return this.renderContent({
+            caller: content,
+            ...dataArgs,
+          });
+        })
+      );
+
+      this.sidebar.mainNav.spinner.toggle();
+    } catch (err) {
+      this.handleError(err);
     }
-
-    const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder({
-      contents: this.state.custom.slice(),
-    });
-
-    await Promise.all(
-      contentsRef.map(async (content, i) => {
-        const {
-          type,
-          leagueId,
-          seasonId,
-          teamId,
-          teamCode,
-        } = this.state.custom[i];
-
-        // get data
-        const standingsData = await model.getStandingsData(leagueId, seasonId);
-        const { teamsData, teamsDataByName } = await model.getTeamsData(
-          leagueId,
-          standingsData
-        );
-
-        const dataArgs = {
-          type,
-          leagueId,
-          seasonId,
-          teamId,
-          teamCode,
-          standingsData,
-          teamsData,
-          teamsDataByName,
-        };
-
-        return this.renderContent({
-          caller: content,
-          ...dataArgs,
-        });
-      })
-    );
-
-    this.sidebar.mainNav.spinner.toggle();
   }
 
   /* render data */
@@ -535,6 +561,32 @@ class App {
     contentsToToggle.forEach((type) => {
       this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
     });
+  }
+
+  /* handle error */
+  handleError(err) {
+    // request error
+    if (Number.isFinite(err)) {
+      if (err < 400) {
+        // alert("redirect");
+      } else if (err < 500) {
+        alert("Wrong API Key or Exceeded API request limits.");
+      } else {
+        alert("Server error, please try again later.");
+      }
+    }
+    // other
+    else {
+      // custom error
+      if (err.name === "Error") alert(err);
+      // dev error
+      else {
+        console.log(err);
+        return;
+      }
+    }
+
+    window.location = window.location.origin;
   }
 }
 

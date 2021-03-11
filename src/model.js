@@ -26,12 +26,24 @@ export const model = {
   },
 
   async getLeagueName(leagueId) {
+    if (!LEAGUE_IDS.includes(+leagueId)) throw new Error("Invalid league ID");
     const { name: leagueName } = await api.getLeague(leagueId);
 
     return leagueName;
   },
 
+  async getTeamName(leagueId, teamId) {
+    if (!LEAGUE_IDS.includes(+leagueId)) throw new Error("Invalid league ID");
+    const { name: teamName } = await api.getTeam(leagueId, teamId);
+
+    return teamName;
+  },
+
   async getStandingsData(leagueId, seasonId) {
+    const seasons = await api.getSeason(leagueId);
+    const [current] = seasons.filter((season) => season.is_current);
+    if (current.season_id !== +seasonId) throw new Error("Invalid season ID");
+
     const { standings: standingsData } = await api.getStandings(
       leagueId,
       seasonId
@@ -136,11 +148,5 @@ export const model = {
     }
 
     return topScorers.slice(0, index);
-  },
-
-  async getTeamName(leagueId, teamId) {
-    const { name: teamName } = await api.getTeam(leagueId, teamId);
-
-    return teamName;
   },
 };

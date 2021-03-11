@@ -51,17 +51,18 @@ class API {
       }
       // add to cache
       else {
-        await this.cache.add(URL);
+        const res = await fetch(URL);
+        if (!res.ok) throw res.status;
+
+        await this.cache.put(URL, res);
         this.cacheExpire[URL] = expire;
 
-        const res = await this.cache.match(URL);
-        if (!res.ok) throw new Error(`${res.status}`);
-
-        const { data } = await res.json();
+        const cacheRes = await this.cache.match(URL);
+        const { data } = await cacheRes.json();
         return data;
       }
     } catch (err) {
-      console.log(err);
+      throw err;
     }
   }
 
