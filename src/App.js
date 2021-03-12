@@ -33,41 +33,34 @@ class App {
       onClickController: this.handleClickController.bind(this),
     });
 
-    // maintain custom before unload
-    window.addEventListener("beforeunload", () => {
-      localStorage.setItem("custom", JSON.stringify(this.state.custom));
-    });
-
-    // route
-    window.addEventListener("load", () => {
-      this.handleLoad(window.location.pathname);
-    });
+    // handle pop state
     window.addEventListener("popstate", (e) => {
       this.handlePopState(e);
     });
 
-    // init cache
-    this.sidebar.mainNav.spinner.toggle();
-    api
-      .initCache("football-dashboard")
-      .then(() => {
-        // initial data
-        return this.initNav();
-      })
-      .catch((err) => {
-        this.handleError(err);
-      })
-      .finally(() => {
-        this.sidebar.mainNav.spinner.toggle();
-      });
+    this.init();
   }
 
-  /* navbar */
-  async initNav() {
-    const initialData = await model.getLeagueData();
-    this.sidebar.mainNav.renderLeague(initialData);
+  async init() {
+    try {
+      this.sidebar.mainNav.spinner.toggle();
+
+      // init cache
+      await api.initCache("football-dashboard");
+
+      // render nav with initial data
+      const initialData = await model.getLeagueData();
+      this.sidebar.mainNav.renderLeague(initialData);
+      this.sidebar.mainNav.spinner.toggle();
+
+      // load content
+      this.route(window.location.pathname);
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
+  /* nav */
   handleClickNav(type) {
     if (type === "custom") {
       this.handleClickCustom();
@@ -77,9 +70,10 @@ class App {
   }
 
   /* router */
-  handleLoad(pathname) {
+  route(pathname) {
     // home
     if (pathname === "/") {
+      //
     }
     // custom
     else if (pathname === "/custom") {
@@ -126,6 +120,7 @@ class App {
         alert("You must finish editing first.");
         return;
       }
+      this.sidebar.mainNav.spinner.toggle();
 
       // push state
       if (pushState)
@@ -137,7 +132,6 @@ class App {
 
       window.scroll(0, 0);
       this.mainContainer.controller.hideController();
-      this.sidebar.mainNav.spinner.toggle();
 
       // render page title & content placeholders
       const leagueName = await model.getLeagueName(leagueId);
@@ -160,6 +154,7 @@ class App {
 
       // render nav
       this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
+      this.sidebar.mainNav.spinner.toggle();
 
       // render contents
       const dataArgs = {
@@ -195,9 +190,7 @@ class App {
       });
 
       // prettier-ignore
-      Promise.all([ standingsProm, matchResultsProm, matchUpcomingProm, topScorersProm, ]).then(() => {
-      this.sidebar.mainNav.spinner.toggle();
-    });
+      await Promise.all([ standingsProm, matchResultsProm, matchUpcomingProm, topScorersProm, ]);
     } catch (err) {
       this.handleError(err);
     }
@@ -212,6 +205,7 @@ class App {
         alert("You must finish editing first.");
         return;
       }
+      this.sidebar.mainNav.spinner.toggle();
 
       // push state
       if (pushState)
@@ -225,7 +219,6 @@ class App {
 
       window.scroll(0, 0);
       this.mainContainer.controller.hideController();
-      this.sidebar.mainNav.spinner.toggle();
 
       // render page title & content placeholders
       const teamName = await model.getTeamName(leagueId, teamId);
@@ -242,10 +235,15 @@ class App {
 
       // get data needed before getting other data
       const standingsData = await model.getStandingsData(leagueId, seasonId);
-      const { teamsData, teamsDataByName } = await model.getTeamsData(
-        leagueId,
-        standingsData
-      );
+      const {
+        teamsDataArr,
+        teamsData,
+        teamsDataByName,
+      } = await model.getTeamsData(leagueId, standingsData);
+
+      // render nav when it is not rendered yet
+      if (!pushState) this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
+      this.sidebar.mainNav.spinner.toggle();
 
       // render contents
       const dataArgs = {
@@ -276,9 +274,7 @@ class App {
         ...dataArgs,
       });
 
-      Promise.all([teamStandingProm, nextMatchProm, formProm]).then(() => {
-        this.sidebar.mainNav.spinner.toggle();
-      });
+      await Promise.all([teamStandingProm, nextMatchProm, formProm]);
     } catch (err) {
       this.handleError(err);
     }
@@ -288,7 +284,6 @@ class App {
     try {
       if (pushState) window.history.pushState({ custom: true }, "", `/custom`);
       window.scroll(0, 0);
-      this.sidebar.mainNav.spinner.toggle();
 
       this.mainContainer.header.renderTitle("Custom");
       if (this.state.custom.length) {
@@ -296,7 +291,6 @@ class App {
       } else {
         this.mainContainer.controller.hideController();
         this.mainContainer.content.renderNoCustomMessage();
-        this.sidebar.mainNav.spinner.toggle();
         return;
       }
 
@@ -343,8 +337,6 @@ class App {
           });
         })
       );
-
-      this.sidebar.mainNav.spinner.toggle();
     } catch (err) {
       this.handleError(err);
     }
@@ -455,6 +447,8 @@ class App {
         .concat(this.state.custom.slice(index + 1));
       this.mainContainer.content.toggleAddBtn({ type, isAdded: false });
     }
+
+    localStorage.setItem("custom", JSON.stringify(this.state.custom));
   }
 
   handleClickCheckbox({ targetEl, isSelected }) {
@@ -493,6 +487,8 @@ class App {
 
         this.state.custom.push(content);
       });
+
+      localStorage.setItem("custom", JSON.stringify(this.state.custom));
 
       if (!this.state.custom.length) this.handleClickCustom(false);
     }

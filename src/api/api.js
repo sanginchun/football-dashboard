@@ -11,9 +11,6 @@ const YEAR = 1000 * 60 * 60 * 24 * 365;
 class API {
   constructor() {
     this.cacheExpire = JSON.parse(localStorage.getItem("cacheExpire")) || {};
-    window.addEventListener("beforeunload", () => {
-      localStorage.setItem("cacheExpire", JSON.stringify(this.cacheExpire));
-    });
   }
 
   async initCache(cacheName) {
@@ -26,12 +23,16 @@ class API {
       return new Date(Date.now()) > new Date(this.cacheExpire[url]);
     });
 
-    Promise.all(
+    const res = await Promise.all(
       expired.map((url) => {
         delete this.cacheExpire[url];
         return this.cache.delete(url);
       })
-    ).then((res) => console.log(`deleted ${res.length} caches`));
+    );
+
+    // update cache expire
+    localStorage.setItem("cacheExpire", JSON.stringify(this.cacheExpire));
+    console.log(`deleted ${res.length} caches`);
   }
 
   async request(URL, expire) {
@@ -56,6 +57,9 @@ class API {
 
         await this.cache.put(URL, res);
         this.cacheExpire[URL] = expire;
+
+        /// update cache expire
+        localStorage.setItem("cacheExpire", JSON.stringify(this.cacheExpire));
 
         const cacheRes = await this.cache.match(URL);
         const { data } = await cacheRes.json();
