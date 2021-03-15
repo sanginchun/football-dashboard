@@ -52,19 +52,21 @@
 
 - [api.js](https://github.com/sanginchun/football-dashboard/blob/main/src/api/api.js): makes api call and takes control of cache storage
 
-- [components](https://github.com/sanginchun/football-dashboard/blob/main/src/components):
+- [components](https://github.com/sanginchun/football-dashboard/tree/main/src/components)
 
-  - [sidebar](https://github.com/sanginchun/football-dashboard/blob/main/src/components/sidebar)
+  - [sidebar](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar)
 
-    - [sidebar-btn](https://github.com/sanginchun/football-dashboard/blob/main/src/components/sidebar/sidebar-btn): activated on mobile devices
-    - [logo](https://github.com/sanginchun/football-dashboard/blob/main/src/components/sidebar/logo)
-    - [user-nav](https://github.com/sanginchun/football-dashboard/blob/main/src/components/sidebar/user-nav): user profile, buttons (Sign in, Sign out, Delete account)
-    - [main-nav](https://github.com/sanginchun/football-dashboard/blob/main/src/components/sidebar/main-nav): main nav of the app
+    - [sidebar-btn](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/sidebar-btn): activated on mobile devices
+    - [logo](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/logo)
+    - [user-nav](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/user-nav): user profile, buttons (Sign in, Sign out, Delete account)
+    - [main-nav](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/main-nav): main nav of the app
 
-  - [main-container](https://github.com/sanginchun/football-dashboard/blob/main/src/components/main-container): main display area
+  - [main-container](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container): main display area
 
-    - [controller](https://github.com/sanginchun/football-dashboard/blob/main/src/components/main-container/controller): activated on custom tab, controls edit functions
-    - [main-header](https://github.com/sanginchun/football-dashboard/blob/main/src/components/main-container/main-header)
-    - [main-content](https://github.com/sanginchun/football-dashboard/blob/main/src/components/main-container/main-content): main content (cards)
+    - [controller](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/controller): activated on custom tab, controls edit functions
+    - [main-header](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/main-header)
+    - [main-content](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/main-content): main content (cards)
 
-  - [spinner](https://github.com/sanginchun/football-dashboard/blob/main/src/components/Spinner)
+  - [spinner](https://github.com/sanginchun/football-dashboard/tree/main/src/components/Spinner)
+
+- [others](https://github.com/sanginchun/football-dashboard/tree/main/src/others/): config, helper functions, ...
