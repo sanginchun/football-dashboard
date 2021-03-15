@@ -438,7 +438,6 @@ class App {
     });
 
     firebase.auth().onAuthStateChanged((user) => {
-      console.log("auth change");
       if (user) this.handleUserSignIn(user);
       else this.handleNotUser();
     });
