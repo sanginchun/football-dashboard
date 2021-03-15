@@ -36,6 +36,7 @@
 
 .user-modal .btn-signout {
   margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 @media screen and (max-width: 850px) {
@@ -47,5 +48,9 @@
 @media screen and (max-width: 550px) {
   .user-nav {
     padding-left: 2.5rem;
+  }
+
+  .user-modal {
+    left: 6rem;
   }
 }
