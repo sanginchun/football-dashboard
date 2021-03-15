@@ -1,6 +1,7 @@
 # ⚽ Football Dashboard
 
 ## Table of Contents
+
 - [Description](https://github.com/sanginchun/football-dashboard#description)
 - [Live Demo](https://github.com/sanginchun/football-dashboard#live-demo)
 - [App Contents](https://github.com/sanginchun/football-dashboard#app-contents)
@@ -8,16 +9,19 @@
 - [Dev Environment](https://github.com/sanginchun/football-dashboard#dev-environment)
 
 ## Description
+
 - Football dashboard is a single-page application that shows up-to-date information about football leagues and teams.
 - Used [SportDataApi](https://app.sportdataapi.com/) which is not a public api, so error might occur due to the request limit.
 - Made as a personal project to improve basic HTML, CSS, VanillaJS skills.
 
 ## Live Demo
+
 [https://football-dashboard.web.app](https://football-dashboard.web.app/)
 
-[![Screenshot](https://github.com/sanginchun/football-dashboard/blob/main/screenshot.png)](https://football-dashboard.web.app/)
+[![Screenshot](https://github.com/sanginchun/football-dashboard/blob/main/readme-img/screenshot.png)](https://football-dashboard.web.app/)
 
 ## App Contents
+
 - League: Premier League, Bundesliga, Serie A, La Liga are available now.
   - Standings
   - Match Results (from last week until today)
@@ -33,7 +37,9 @@
   - Saved automatically when user signed in.
 
 ## Architecture
-![Architecture](https://github.com/sanginchun/football-dashboard/blob/main/architecture.png)
+
+![Architecture](https://github.com/sanginchun/football-dashboard/blob/main/readme-img/architecture.png)
+
 - [index.html](https://github.com/sanginchun/football-dashboard/blob/main/index.html): entry point
 
 - [App.js](https://github.com/sanginchun/football-dashboard/blob/main/src/App.js): controls entire application
@@ -45,7 +51,7 @@
 - [components](https://github.com/sanginchun/football-dashboard/tree/main/src/components)
 
   - [SideBar](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar)
-   
+
     - [Logo](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/logo)
     - [UserNav](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/user-nav): user profile, buttons (Sign in, Sign out, Delete account)
     - [MainNav](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/main-nav): main nav of the app
@@ -54,7 +60,7 @@
   - [MainContainer](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container): main display area
 
     - [MainHeader](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/main-header)
-    - [Controller](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/controller): activated on custom tab, controls edit functions    
+    - [Controller](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/controller): activated on custom tab, controls edit functions
     - [MainContent](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/main-content): main content area; includes content(card) components and utility components such as buttons, datepicker, checkbox
 
   - [Spinner](https://github.com/sanginchun/football-dashboard/tree/main/src/components/Spinner)
@@ -62,6 +68,7 @@
 - [others](https://github.com/sanginchun/football-dashboard/tree/main/src/others/): config, helper, firebase config
 
 ## Dev Environment
+
 - Package Manager: [npm](https://www.npmjs.com/)
 - Bundler: [Parcel](https://parceljs.org/)
 - Deploy & Hosting: [Firebase](https://firebase.google.com/)
