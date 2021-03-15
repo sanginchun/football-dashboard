@@ -18,6 +18,7 @@ class Standings {
     this.spinner = new Spinner({
       $target: this.standings,
     });
+    this.spinner.toggle();
 
     $target.appendChild(this.standings);
   }

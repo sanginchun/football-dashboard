@@ -2,6 +2,7 @@ import "./MainContainer.css";
 import MainHeader from "./main-header/MainHeader";
 import Controller from "./controller/Controller";
 import MainContent from "./main-content/MainContent";
+import Spinner from "../Spinner/Spinner";
 
 class MainContainer {
   constructor({
@@ -30,6 +31,8 @@ class MainContainer {
       onClickAddBtn,
       onClickCheckbox,
     });
+
+    this.spinner = new Spinner({ $target: this.mainContainer, isLarge: true });
 
     $target.appendChild(this.mainContainer);
   }

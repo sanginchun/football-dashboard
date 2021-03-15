@@ -19,6 +19,7 @@ class Matches {
     this.spinner = new Spinner({
       $target: this.matches,
     });
+    this.spinner.toggle();
 
     $target.appendChild(this.matches);
   }

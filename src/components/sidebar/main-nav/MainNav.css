@@ -1,8 +1,5 @@
 .main-nav {
-  margin-top: 2rem;
-  padding-top: 1rem;
   padding-left: 4rem;
-  border-top: 1px solid var(--almost-white);
   color: var(--medium-grey);
 
   display: flex;
@@ -16,6 +13,10 @@
   align-items: center;
   margin-top: 2rem;
   font-size: 0.9rem;
+}
+
+.main-nav__items:first-child {
+  margin-top: 1rem;
 }
 
 .main-nav__items.deactive {
@@ -80,10 +81,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.main-nav .spinner {
-  top: 10rem;
 }
 
 @media screen and (max-width: 850px) {

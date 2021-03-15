@@ -17,6 +17,7 @@ class TeamStanding {
     this.spinner = new Spinner({
       $target: this.teamStanding,
     });
+    this.spinner.toggle();
 
     $target.appendChild(this.teamStanding);
   }

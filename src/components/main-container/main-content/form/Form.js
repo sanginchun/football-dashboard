@@ -18,6 +18,7 @@ class Form {
     this.spinner = new Spinner({
       $target: this.form,
     });
+    this.spinner.toggle();
 
     $target.appendChild(this.form);
   }

@@ -28,10 +28,6 @@ a {
   color: inherit;
 }
 
-#app {
-  position: relative;
-}
-
 .btn {
   display: inline-block;
   font-size: 0.8rem;
@@ -44,6 +40,21 @@ a {
 
 .btn:hover {
   cursor: pointer;
+}
+
+.overlay {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: 0.5;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 99;
+}
+
+.overlay.hide {
+  display: none;
 }
 
 @media screen and (min-width: 1600px) {

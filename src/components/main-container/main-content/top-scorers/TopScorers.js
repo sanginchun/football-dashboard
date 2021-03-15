@@ -18,6 +18,7 @@ class TopScorers {
     this.spinner = new Spinner({
       $target: this.topScorers,
     });
+    this.spinner.toggle();
 
     $target.appendChild(this.topScorers);
   }

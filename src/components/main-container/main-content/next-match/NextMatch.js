@@ -18,6 +18,7 @@ class NextMatch {
     this.spinner = new Spinner({
       $target: this.nextMatch,
     });
+    this.spinner.toggle();
 
     $target.appendChild(this.nextMatch);
   }

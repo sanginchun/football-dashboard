@@ -1,6 +1,8 @@
 .logo-container {
   margin: 0 auto;
   padding-left: 4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--almost-white);
 }
 
 .logo-container .logo {
@@ -10,7 +12,7 @@
   padding-left: 0.7rem;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 850px) {
   .logo-container {
     padding-left: 2rem;
   }

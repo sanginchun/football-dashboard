@@ -83,7 +83,6 @@ class MainNav {
 
     navLeague.insertAdjacentElement("afterend", nested);
     navLeague.classList.remove("deactive");
-    this.spinner.toggle();
   }
 
   renderTeam(data, leagueId) {
