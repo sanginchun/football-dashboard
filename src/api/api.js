@@ -4,7 +4,7 @@ const API_KEY2 = `b7378ec0-6644-11eb-aa1d-d5b666f6a0bb`;
 // 237: Premier League, 314: Bundesliga, 538: La Liga, 392: Serie A
 const LEAGUE_ID_KEY1 = [237, 314];
 const HALF_HOUR = 1000 * 60 * 30;
-const WEEK = 1000 * 60 * 60 * 24 * 7;
+const WEEK = 1000 * 60 * 60 * 24 * 7 * 2;
 const MONTH = 1000 * 60 * 60 * 24 * 30;
 const YEAR = 1000 * 60 * 60 * 24 * 365;
 
