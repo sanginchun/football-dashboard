@@ -13,6 +13,7 @@
 - Football dashboard is a single-page application that shows up-to-date information about football leagues and teams.
 - Used [SportDataApi](https://app.sportdataapi.com/) which is not a public api, so error might occur due to the request limit.
 - Made as a personal project to improve basic HTML, CSS, VanillaJS skills.
+- Currently working on React version of the project. [React version](https://github.com/sanginchun/football-dashboard-react)
 
 ## Live Demo
 
