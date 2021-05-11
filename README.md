@@ -20,7 +20,7 @@
 
 [https://football-dashboard.web.app](https://football-dashboard.web.app/)
 
-[![Screenshot](https://github.com/sanginchun/football-dashboard/blob/main/readme-img/screenshot.png)](https://football-dashboard.web.app/)
+[![Screenshot](https://github.com/sanginchun/football-dashboard/blob/master/readme-img/screenshot.png)](https://football-dashboard.web.app/)
 
 ## App Contents
 
@@ -40,34 +40,34 @@
 
 ## Architecture
 
-![Architecture](https://github.com/sanginchun/football-dashboard/blob/main/readme-img/architecture.png)
+![Architecture](https://github.com/sanginchun/football-dashboard/blob/master/readme-img/architecture.png)
 
-- [index.html](https://github.com/sanginchun/football-dashboard/blob/main/index.html): entry point
+- [index.html](https://github.com/sanginchun/football-dashboard/blob/master/index.html): entry point
 
-- [App.js](https://github.com/sanginchun/football-dashboard/blob/main/src/App.js): controls entire application
+- [App.js](https://github.com/sanginchun/football-dashboard/blob/master/src/App.js): controls entire application
 
-- [model.js](https://github.com/sanginchun/football-dashboard/blob/main/src/model.js): parse and format data
+- [model.js](https://github.com/sanginchun/football-dashboard/blob/master/src/model.js): parse and format data
 
-- [api.js](https://github.com/sanginchun/football-dashboard/blob/main/src/api/api.js): makes api call and takes control of cache storage
+- [api.js](https://github.com/sanginchun/football-dashboard/blob/master/src/api/api.js): makes api call and takes control of cache storage
 
-- [components](https://github.com/sanginchun/football-dashboard/tree/main/src/components)
+- [components](https://github.com/sanginchun/football-dashboard/tree/master/src/components)
 
-  - [SideBar](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar)
+  - [SideBar](https://github.com/sanginchun/football-dashboard/tree/master/src/components/sidebar)
 
-    - [Logo](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/logo)
-    - [UserNav](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/user-nav): user profile, buttons (Sign in, Sign out, Delete account)
-    - [MainNav](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/main-nav): main nav of the app
-    - [SideBarBtn](https://github.com/sanginchun/football-dashboard/tree/main/src/components/sidebar/sidebar-btn): activated on mobile devices
+    - [Logo](https://github.com/sanginchun/football-dashboard/tree/master/src/components/sidebar/logo)
+    - [UserNav](https://github.com/sanginchun/football-dashboard/tree/master/src/components/sidebar/user-nav): user profile, buttons (Sign in, Sign out, Delete account)
+    - [MainNav](https://github.com/sanginchun/football-dashboard/tree/master/src/components/sidebar/main-nav): main nav of the app
+    - [SideBarBtn](https://github.com/sanginchun/football-dashboard/tree/master/src/components/sidebar/sidebar-btn): activated on mobile devices
 
-  - [MainContainer](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container): main display area
+  - [MainContainer](https://github.com/sanginchun/football-dashboard/tree/master/src/components/main-container): main display area
 
-    - [MainHeader](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/main-header)
-    - [Controller](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/controller): activated on custom tab, controls edit functions
-    - [MainContent](https://github.com/sanginchun/football-dashboard/tree/main/src/components/main-container/main-content): main content area; includes content(card) components and utility components such as buttons, datepicker, checkbox
+    - [MainHeader](https://github.com/sanginchun/football-dashboard/tree/master/src/components/main-container/main-header)
+    - [Controller](https://github.com/sanginchun/football-dashboard/tree/master/src/components/main-container/controller): activated on custom tab, controls edit functions
+    - [MainContent](https://github.com/sanginchun/football-dashboard/tree/master/src/components/main-container/main-content): main content area; includes content(card) components and utility components such as buttons, datepicker, checkbox
 
-  - [Spinner](https://github.com/sanginchun/football-dashboard/tree/main/src/components/Spinner)
+  - [Spinner](https://github.com/sanginchun/football-dashboard/tree/master/src/components/Spinner)
 
-- [others](https://github.com/sanginchun/football-dashboard/tree/main/src/others/): config, helper, firebase config
+- [others](https://github.com/sanginchun/football-dashboard/tree/master/src/others/): config, helper, firebase config
 
 ## Dev Environment
 
