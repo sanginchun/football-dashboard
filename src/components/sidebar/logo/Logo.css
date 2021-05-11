@@ -11,15 +11,3 @@
   border-left: 0.35rem solid #333;
   padding-left: 0.7rem;
 }
-
-@media screen and (max-width: 850px) {
-  .logo-container {
-    padding-left: 2rem;
-  }
-}
-
-@media screen and (max-width: 550px) {
-  .logo-container {
-    padding-left: 2.5rem;
-  }
-}

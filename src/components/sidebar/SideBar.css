@@ -1,5 +1,6 @@
 .sidebar {
-  width: 23%;
+  width: 100%;
+  max-width: 300px;
   position: fixed;
   top: 0;
   left: 0;
@@ -20,7 +21,6 @@
 
 @media screen and (max-width: 1100px) {
   .sidebar {
-    width: 28%;
     transform: translateX(calc(-100% + 3rem));
     transition: transform 0.5s;
     overflow: auto;
@@ -28,11 +28,5 @@
 
   .sidebar.show {
     transform: translateX(0);
-  }
-}
-
-@media screen and (max-width: 550px) {
-  .sidebar {
-    width: 55%;
   }
 }
