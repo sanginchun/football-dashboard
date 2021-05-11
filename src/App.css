@@ -5,6 +5,7 @@
   --light-grey: #ccc;
   --medium-grey: #666;
   --dark-grey: #333;
+  --sidebar-width: 300px;
 }
 
 * {

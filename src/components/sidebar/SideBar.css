@@ -1,6 +1,6 @@
 .sidebar {
   width: 100%;
-  max-width: 300px;
+  max-width: var(--sidebar-width);
   position: fixed;
   top: 0;
   left: 0;

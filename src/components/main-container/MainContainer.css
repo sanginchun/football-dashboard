@@ -1,6 +1,6 @@
 .main-container {
   min-height: 100vh;
-  margin-left: 300px;
+  margin-left: var(--sidebar-width);
   padding: 0 4rem;
   padding-bottom: 2rem;
   background-color: var(--background-color);
