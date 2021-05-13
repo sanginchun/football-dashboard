@@ -5,6 +5,15 @@ import { model } from "./model.js";
 import SideBar from "./components/sidebar/SideBar";
 import MainContainer from "./components/main-container/MainContainer";
 
+// page contents
+const LEAGUE_PAGE = [
+  "standings",
+  "matchResults",
+  "matchUpcoming",
+  "topScorers",
+];
+const TEAM_PAGE = ["teamStanding", "nextMatch", "form"];
+
 class App {
   constructor($target) {
     // initial state
@@ -122,103 +131,85 @@ class App {
   }
 
   /* load pages */
-  async handleClickLeague({ leagueId, seasonId }, pushState = true) {
+
+  // get data needed to render contents
+  async getDataForRender({ leagueId, seasonId }) {
     try {
-      if (this.state.isEditing) {
-        alert("You must finish editing first.");
-        return;
-      }
-      this.sidebar.mainNav.spinner.toggle();
-
-      // push state
-      if (pushState)
-        window.history.pushState(
-          { leagueId, seasonId },
-          "",
-          `/league?${window.btoa(`leagueId=${leagueId}&seasonId=${seasonId}`)}`
-        );
-
-      window.scroll(0, 0);
-      this.mainContainer.controller.hideController();
-
-      // render page title & content placeholders
-      const leagueName = await model.getLeagueName(leagueId);
-      this.mainContainer.header.renderTitle(leagueName);
-      this.mainContainer.content.renderLeaguePagePlaceholder({
-        leagueId,
-        seasonId,
-      });
-
-      // toggle add buttons
-      this.toggleAddedContentAddBtns({ leagueId });
-
-      // get data needed before getting other data
       const standingsData = await model.getStandingsData(leagueId, seasonId);
-      const {
-        teamsDataArr,
-        teamsData,
-        teamsDataByName,
-      } = await model.getTeamsData(leagueId, standingsData);
+      const { teamsDataArr, teamsData, teamsDataByName } =
+        await model.getTeamsData(leagueId, standingsData);
 
-      // render nav
-      this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
-      this.sidebar.mainNav.spinner.toggle();
-
-      // render contents
-      const dataArgs = {
-        leagueId,
-        seasonId,
-        standingsData,
-        teamsData,
-        teamsDataByName,
-      };
-
-      const standingsProm = this.renderContent({
-        type: "standings",
-        caller: this.mainContainer.content.standings,
-        ...dataArgs,
-      });
-
-      const matchResultsProm = this.renderContent({
-        type: "matchResults",
-        caller: this.mainContainer.content.matchResults,
-        ...dataArgs,
-      });
-
-      const matchUpcomingProm = this.renderContent({
-        type: "matchUpcoming",
-        caller: this.mainContainer.content.matchUpcoming,
-        ...dataArgs,
-      });
-
-      const topScorersProm = this.renderContent({
-        type: "topScorers",
-        caller: this.mainContainer.content.topScorers,
-        ...dataArgs,
-      });
-
-      // prettier-ignore
-      await Promise.all([ standingsProm, matchResultsProm, matchUpcomingProm, topScorersProm, ]);
+      return { standingsData, teamsDataArr, teamsData, teamsDataByName };
     } catch (err) {
       this.handleError(err);
     }
   }
 
-  async handleClickTeam(
-    { leagueId, seasonId, teamId, teamCode },
-    pushState = true
-  ) {
+  async handleClickLeague(dataParams, pushState = true) {
     try {
       if (this.state.isEditing) {
         alert("You must finish editing first.");
         return;
       }
-      this.sidebar.mainNav.spinner.toggle();
+
+      const { leagueId, seasonId } = dataParams;
 
       // push state
       if (pushState)
         window.history.pushState(
-          { leagueId, seasonId, teamId, teamCode },
+          dataParams,
+          "",
+          `/league?${window.btoa(`leagueId=${leagueId}&seasonId=${seasonId}`)}`
+        );
+
+      window.scroll(0, 0);
+      this.sidebar.mainNav.spinner.toggle();
+      this.mainContainer.controller.hideController();
+
+      // render page title & content placeholders
+      const leagueName = await model.getLeagueName(leagueId);
+      this.mainContainer.header.renderTitle(leagueName);
+      this.mainContainer.content.renderLeaguePagePlaceholder(dataParams);
+
+      // toggle add buttons
+      this.toggleAddedContentAddBtns({ leagueId });
+
+      // get data needed in advance
+      const { teamsDataArr, ...dataForRender } = await this.getDataForRender(
+        dataParams
+      );
+
+      // render nav
+      this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
+      this.sidebar.mainNav.spinner.toggle();
+
+      // render
+      LEAGUE_PAGE.forEach((contentType) =>
+        this.renderContent({
+          type: contentType,
+          caller: this.mainContainer.content[contentType],
+          dataParams,
+          dataForRender,
+        })
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async handleClickTeam(dataParams, pushState = true) {
+    try {
+      if (this.state.isEditing) {
+        alert("You must finish editing first.");
+        return;
+      }
+
+      const { leagueId, seasonId, teamId, teamCode } = dataParams;
+
+      // push state
+      if (pushState)
+        window.history.pushState(
+          dataParams,
           "",
           `/team?${window.btoa(
             `leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
@@ -226,63 +217,35 @@ class App {
         );
 
       window.scroll(0, 0);
+      this.sidebar.mainNav.spinner.toggle();
       this.mainContainer.controller.hideController();
 
       // render page title & content placeholders
       const teamName = await model.getTeamName(leagueId, teamId);
       this.mainContainer.header.renderTitle(teamName);
-      this.mainContainer.content.renderTeamPagePlaceholder({
-        leagueId,
-        seasonId,
-        teamId,
-        teamCode,
-      });
+      this.mainContainer.content.renderTeamPagePlaceholder(dataParams);
 
       // toggle add buttons
       this.toggleAddedContentAddBtns({ teamId });
 
       // get data needed before getting other data
-      const standingsData = await model.getStandingsData(leagueId, seasonId);
-      const {
-        teamsDataArr,
-        teamsData,
-        teamsDataByName,
-      } = await model.getTeamsData(leagueId, standingsData);
+      const { teamsDataArr, ...dataForRender } = await this.getDataForRender(
+        dataParams
+      );
 
       // render nav when it is not rendered yet
       if (!pushState) this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
       this.sidebar.mainNav.spinner.toggle();
 
-      // render contents
-      const dataArgs = {
-        leagueId,
-        seasonId,
-        teamId,
-        teamCode,
-        standingsData,
-        teamsData,
-        teamsDataByName,
-      };
-
-      const teamStandingProm = this.renderContent({
-        type: "teamStanding",
-        caller: this.mainContainer.content.teamStanding,
-        ...dataArgs,
-      });
-
-      const nextMatchProm = this.renderContent({
-        type: "nextMatch",
-        caller: this.mainContainer.content.nextMatch,
-        ...dataArgs,
-      });
-
-      const formProm = this.renderContent({
-        type: "form",
-        caller: this.mainContainer.content.form,
-        ...dataArgs,
-      });
-
-      await Promise.all([teamStandingProm, nextMatchProm, formProm]);
+      // render
+      TEAM_PAGE.forEach((contentType) =>
+        this.renderContent({
+          type: contentType,
+          caller: this.mainContainer.content[contentType],
+          dataParams,
+          dataForRender,
+        })
+      );
     } catch (err) {
       this.handleError(err);
     }
@@ -308,105 +271,75 @@ class App {
         return;
       }
 
-      const contentsRef = this.mainContainer.content.renderCustomPagePlaceholder(
-        {
+      const contentRefs =
+        this.mainContainer.content.renderCustomPagePlaceholder({
           contents: this.state.custom.slice(),
-        }
-      );
+        });
 
-      await Promise.all(
-        contentsRef.map(async (content, i) => {
-          const {
-            type,
-            leagueId,
-            seasonId,
-            teamId,
-            teamCode,
-          } = this.state.custom[i];
+      contentRefs.forEach(async (ref, i) => {
+        const { type, ...dataParams } = this.state.custom[i];
+        const { teamsDataArr, ...dataForRender } = await this.getDataForRender(
+          dataParams
+        );
 
-          // get data
-          const standingsData = await model.getStandingsData(
-            leagueId,
-            seasonId
-          );
-          const { teamsData, teamsDataByName } = await model.getTeamsData(
-            leagueId,
-            standingsData
-          );
-
-          const dataArgs = {
-            type,
-            leagueId,
-            seasonId,
-            teamId,
-            teamCode,
-            standingsData,
-            teamsData,
-            teamsDataByName,
-          };
-
-          return this.renderContent({
-            caller: content,
-            ...dataArgs,
-          });
-        })
-      );
+        this.renderContent({
+          type,
+          caller: ref,
+          dataParams,
+          dataForRender,
+        });
+      });
     } catch (err) {
       this.handleError(err);
     }
   }
 
-  /* render data */
-  // prettier-ignore
-  renderContent(data) {
-    const { type, leagueId, seasonId, teamId, teamCode, standingsData, teamsData, teamsDataByName, caller, } = data;
+  /* render content */
+  renderContent({ type, caller, dataParams, dataForRender }) {
+    const { leagueId, seasonId, teamId, teamCode } = dataParams;
+    const { standingsData, teamsData, teamsDataByName } = dataForRender;
 
-    // return promise
+    // get actual data, then render
     switch (type) {
       case "standings":
-        return Promise.resolve(standingsData).then((standingsData) => {
-          caller.render({
-            standingsData,
-            teamsData,
-          });
+        caller.render({
+          standingsData,
+          teamsData,
         });
+        break;
       case "matchResults":
-        return model
-          .getMatchResultsData(leagueId, seasonId)
-          .then((matchesData) => {
-            caller.render({
-              matchesData,
-              teamsDataByName,
-            });
-          });
-      case "matchUpcoming":
-        return model
-          .getMatchUpcomingData(leagueId, seasonId)
-          .then((matchesData) => {
-            caller.render({
-              matchesData,
-              teamsDataByName,
-            });
-          });
-      case "topScorers":
-        return model
-          .getTopScorersData(leagueId, seasonId)
-          .then((topScorersData) => {
-            caller.render({
-              topScorersData,
-              teamsDataByName,
-            });
-          });
-      case "teamStanding":
-        return Promise.resolve(standingsData).then((standingsData) => {
+        model.getMatchResultsData(leagueId, seasonId).then((matchesData) => {
           caller.render({
-            standingsData,
-            teamsData,
-            teamId,
+            matchesData,
+            teamsDataByName,
           });
         });
+        break;
+      case "matchUpcoming":
+        model.getMatchUpcomingData(leagueId, seasonId).then((matchesData) => {
+          caller.render({
+            matchesData,
+            teamsDataByName,
+          });
+        });
+        break;
+      case "topScorers":
+        model.getTopScorersData(leagueId, seasonId).then((topScorersData) => {
+          caller.render({
+            topScorersData,
+            teamsDataByName,
+          });
+        });
+        break;
+      case "teamStanding":
+        caller.render({
+          standingsData,
+          teamsData,
+          teamId,
+        });
+        break;
       case "nextMatch":
-        return model
+        model
           .getMatchUpcomingData(leagueId, seasonId, teamCode)
           .then((matchesData) => {
             // get first one
@@ -417,8 +350,9 @@ class App {
               teamsDataByName,
             });
           });
+        break;
       case "form":
-        return model
+        model
           .getMatchResultsData(leagueId, seasonId, true, teamCode)
           .then((matchesData) => {
             caller.render({
@@ -427,6 +361,7 @@ class App {
               teamsDataByName,
             });
           });
+        break;
     }
   }
 
