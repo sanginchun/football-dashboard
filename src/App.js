@@ -121,14 +121,14 @@ class App {
   }
 
   /* load pages */
-  // get data needed to render contents
-  async getDataForRender({ leagueId, seasonId }) {
+  // get teams data to render contents
+  async getTeamsDataInAdvance({ leagueId, seasonId }) {
     try {
       const standingsData = await model.getStandingsData(leagueId, seasonId);
       const { teamsDataArr, teamsData, teamsDataByName } =
         await model.getTeamsData(leagueId, standingsData);
 
-      return { standingsData, teamsDataArr, teamsData, teamsDataByName };
+      return { teamsDataArr, teamsData, teamsDataByName };
     } catch (err) {
       this.handleError(err);
     }
@@ -163,13 +163,11 @@ class App {
       // toggle add buttons
       this.toggleAddedContentAddBtns({ leagueId });
 
-      // get data needed in advance
-      const { teamsDataArr, ...dataForRender } = await this.getDataForRender(
-        dataParams
-      );
+      // get teams data
+      const teams = await this.getTeamsDataInAdvance(dataParams);
 
       // render nav
-      this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
+      this.sidebar.mainNav.renderTeam(teams.teamsDataArr, leagueId);
       this.sidebar.mainNav.spinner.toggle();
 
       // render
@@ -178,7 +176,7 @@ class App {
           type: contentType,
           caller: this.mainContainer.content[contentType],
           dataParams,
-          dataForRender,
+          teams,
         })
       );
     } catch (err) {
@@ -215,13 +213,12 @@ class App {
       // toggle add buttons
       this.toggleAddedContentAddBtns({ teamId });
 
-      // get data needed before getting other data
-      const { teamsDataArr, ...dataForRender } = await this.getDataForRender(
-        dataParams
-      );
+      // get teams data
+      const teams = await this.getTeamsDataInAdvance(dataParams);
 
       // render nav when it is not rendered yet
-      if (!pushState) this.sidebar.mainNav.renderTeam(teamsDataArr, leagueId);
+      if (!pushState)
+        this.sidebar.mainNav.renderTeam(teams.teamsDataArr, leagueId);
       this.sidebar.mainNav.spinner.toggle();
 
       // render
@@ -230,7 +227,7 @@ class App {
           type: contentType,
           caller: this.mainContainer.content[contentType],
           dataParams,
-          dataForRender,
+          teams,
         })
       );
     } catch (err) {
@@ -263,17 +260,38 @@ class App {
           contents: this.state.custom.slice(),
         });
 
+      const markLeagueId = {};
+      const uniqueLeagueIDs = this.state.custom
+        .map(({ leagueId, seasonId }) => ({ leagueId, seasonId }))
+        .filter(({ leagueId }) => {
+          if (markLeagueId[leagueId]) return false;
+          else {
+            markLeagueId[leagueId] = true;
+            return true;
+          }
+        });
+
+      const leagueTeams = await Promise.all(
+        uniqueLeagueIDs.map((dataParams) =>
+          this.getTeamsDataInAdvance(dataParams)
+        )
+      );
+
+      const allTeams = { teamsData: {}, teamsDataByName: {} };
+
+      leagueTeams.forEach((league) => {
+        Object.assign(allTeams.teamsData, league.teamsData);
+        Object.assign(allTeams.teamsDataByName, league.teamsDataByName);
+      });
+
       contentRefs.forEach(async (ref, i) => {
         const { type, ...dataParams } = this.state.custom[i];
-        const { teamsDataArr, ...dataForRender } = await this.getDataForRender(
-          dataParams
-        );
 
         this.renderContent({
           type,
           caller: ref,
           dataParams,
-          dataForRender,
+          teams: allTeams,
         });
       });
     } catch (err) {
@@ -282,16 +300,18 @@ class App {
   }
 
   /* render content */
-  renderContent({ type, caller, dataParams, dataForRender }) {
+  renderContent({ type, caller, dataParams, teams }) {
     const { leagueId, seasonId, teamId, teamCode } = dataParams;
-    const { standingsData, teamsData, teamsDataByName } = dataForRender;
+    const { teamsData, teamsDataByName } = teams;
 
     // get actual data, then render
     switch (type) {
       case "standings":
-        caller.render({
-          standingsData,
-          teamsData,
+        model.getStandingsData(leagueId, seasonId).then((standingsData) => {
+          caller.render({
+            standingsData,
+            teamsData,
+          });
         });
         break;
       case "matchResults":
@@ -319,10 +339,12 @@ class App {
         });
         break;
       case "teamStanding":
-        caller.render({
-          standingsData,
-          teamsData,
-          teamId,
+        model.getStandingsData(leagueId, seasonId).then((standingsData) => {
+          caller.render({
+            standingsData,
+            teamsData,
+            teamId,
+          });
         });
         break;
       case "nextMatch":
