@@ -88,50 +88,39 @@ class App {
 
   /* router */
   route(pathname) {
-    // home
-    if (pathname === "/") {
-      //
-    }
-    // custom
-    else if (pathname === "/custom") {
-      this.handleClickCustom(false);
-    }
-    // team or league
-    else if (pathname === "/league" || pathname === "/team") {
-      try {
-        const dataArgs = {};
-        const params = new URLSearchParams(
-          window.atob(window.location.search.slice(1))
-        );
-        for (const [key, value] of params) dataArgs[key] = value;
+    switch (pathname) {
+      case "/":
+        break;
+      case "/custom":
+        this.handleClickCustom(false);
+        break;
+      case "/league":
+      case "/team":
+        const dataParams = {};
+        const params = new URLSearchParams(window.location.search.slice(1));
+        for (const [key, value] of params) dataParams[key] = value;
 
         pathname === "/league"
-          ? this.handleClickLeague(dataArgs, false)
-          : this.handleClickTeam(dataArgs, false);
-      } catch (err) {
-        alert("URL is not valid");
+          ? this.handleClickLeague(dataParams, false)
+          : this.handleClickTeam(dataParams, false);
+        break;
+      default:
         window.location = window.location.origin;
-      }
-    }
-    // redirect
-    else {
-      window.location = window.location.origin;
     }
   }
 
   handlePopState({ state }) {
-    if (state && state.hasOwnProperty("custom")) this.handleClickCustom(false);
-    else if (state && state.hasOwnProperty("teamId"))
-      this.handleClickTeam(state, false);
-    else if (state && state.hasOwnProperty("leagueId"))
-      this.handleClickLeague(state, false);
-    else {
+    if (state) {
+      if (state.hasOwnProperty("custom")) this.handleClickCustom(false);
+      else if (state.hasOwnProperty("teamId"))
+        this.handleClickTeam(state, false);
+      else this.handleClickLeague(state, false);
+    } else {
       window.location = window.location.origin;
     }
   }
 
   /* load pages */
-
   // get data needed to render contents
   async getDataForRender({ leagueId, seasonId }) {
     try {
@@ -159,7 +148,7 @@ class App {
         window.history.pushState(
           dataParams,
           "",
-          `/league?${window.btoa(`leagueId=${leagueId}&seasonId=${seasonId}`)}`
+          `/league?leagueId=${leagueId}&seasonId=${seasonId}`
         );
 
       window.scroll(0, 0);
@@ -211,9 +200,7 @@ class App {
         window.history.pushState(
           dataParams,
           "",
-          `/team?${window.btoa(
-            `leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
-          )}`
+          `/team?leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
         );
 
       window.scroll(0, 0);
@@ -437,24 +424,27 @@ class App {
       }
 
       const pathname = window.location.pathname;
-      if (pathname === "/"){}
-      // reload contents if custom
-      else if (pathname === "/custom") {
-        this.handleClickCustom(false);
+      switch(pathname) {
+        case "/":
+          break;
+        case "/custom": // reload contents
+          this.handleClickCustom(false);
+          break;
+        case "/league":
+        case "/team":
+          const dataParams = {};
+          const params = new URLSearchParams(window.location.search.slice(1));
+          for (const [key, value] of params) dataParams[key] = value;
+
+          // toggle add buttons
+          this.toggleAddedContentAddBtns(dataParams);
+          break;
       }
-      // toggle add buttons if league or team
-      else {
-        const dataArgs = {};
-        const params = new URLSearchParams(
-          window.atob(window.location.search.slice(1))
-          );
-          for (const [key, value] of params) dataArgs[key] = value;
-          this.toggleAddedContentAddBtns(dataArgs);
-        }
-      }).finally(() => {
-        localStorage.removeItem("custom");
-        this.mainContainer.spinner.toggle();
-      });
+    })
+    .finally(() => {
+      localStorage.removeItem("custom");
+      this.mainContainer.spinner.toggle();
+    });
   }
 
   handleNotUser() {
