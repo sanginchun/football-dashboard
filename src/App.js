@@ -158,7 +158,7 @@ class App {
       // render page title & content placeholders
       const leagueName = await model.getLeagueName(leagueId);
       this.mainContainer.header.renderTitle(leagueName);
-      this.mainContainer.content.renderLeaguePagePlaceholder(dataParams);
+      this.mainContainer.mainContent.renderLeaguePagePlaceholder(dataParams);
 
       // toggle add buttons
       this.toggleAddedContentAddBtns({ leagueId });
@@ -171,10 +171,10 @@ class App {
       this.sidebar.mainNav.spinner.toggle();
 
       // render
-      LEAGUE_PAGE.forEach((contentType) =>
+      LEAGUE_PAGE.forEach((type) =>
         this.renderContent({
-          type: contentType,
-          caller: this.mainContainer.content[contentType],
+          type,
+          ref: this.mainContainer.mainContent[type],
           dataParams,
           teams,
         })
@@ -208,7 +208,7 @@ class App {
       // render page title & content placeholders
       const teamName = await model.getTeamName(leagueId, teamId);
       this.mainContainer.header.renderTitle(teamName);
-      this.mainContainer.content.renderTeamPagePlaceholder(dataParams);
+      this.mainContainer.mainContent.renderTeamPagePlaceholder(dataParams);
 
       // toggle add buttons
       this.toggleAddedContentAddBtns({ teamId });
@@ -222,10 +222,10 @@ class App {
       this.sidebar.mainNav.spinner.toggle();
 
       // render
-      TEAM_PAGE.forEach((contentType) =>
+      TEAM_PAGE.forEach((type) =>
         this.renderContent({
-          type: contentType,
-          caller: this.mainContainer.content[contentType],
+          type,
+          ref: this.mainContainer.mainContent[type],
           dataParams,
           teams,
         })
@@ -251,47 +251,40 @@ class App {
         this.mainContainer.controller.showController();
       } else {
         this.mainContainer.controller.hideController();
-        this.mainContainer.content.renderNoCustomMessage();
+        this.mainContainer.mainContent.renderNoCustomMessage();
         return;
       }
 
       const contentRefs =
-        this.mainContainer.content.renderCustomPagePlaceholder({
+        this.mainContainer.mainContent.renderCustomPagePlaceholder({
           contents: this.state.custom.slice(),
         });
 
       const markLeagueId = {};
-      const uniqueLeagueIDs = this.state.custom
-        .map(({ leagueId, seasonId }) => ({ leagueId, seasonId }))
-        .filter(({ leagueId }) => {
-          if (markLeagueId[leagueId]) return false;
-          else {
-            markLeagueId[leagueId] = true;
-            return true;
-          }
-        });
+      const uniqueDataParams = this.state.custom.filter(({ leagueId }) => {
+        if (markLeagueId[leagueId]) return false;
+        else {
+          markLeagueId[leagueId] = true;
+          return true;
+        }
+      });
 
-      const leagueTeams = await Promise.all(
-        uniqueLeagueIDs.map((dataParams) =>
-          this.getTeamsDataInAdvance(dataParams)
+      const teams = {};
+      await Promise.all(
+        uniqueDataParams.map(({ leagueId, seasonId }) =>
+          this.getTeamsDataInAdvance({ leagueId, seasonId }).then(
+            (data) => (teams[leagueId] = data)
+          )
         )
       );
 
-      const allTeams = { teamsData: {}, teamsDataByName: {} };
-
-      leagueTeams.forEach((league) => {
-        Object.assign(allTeams.teamsData, league.teamsData);
-        Object.assign(allTeams.teamsDataByName, league.teamsDataByName);
-      });
-
       contentRefs.forEach(async (ref, i) => {
         const { type, ...dataParams } = this.state.custom[i];
-
         this.renderContent({
           type,
-          caller: ref,
+          ref,
           dataParams,
-          teams: allTeams,
+          teams: teams[dataParams.leagueId],
         });
       });
     } catch (err) {
@@ -300,7 +293,7 @@ class App {
   }
 
   /* render content */
-  renderContent({ type, caller, dataParams, teams }) {
+  renderContent({ type, ref, dataParams, teams }) {
     const { leagueId, seasonId, teamId, teamCode } = dataParams;
     const { teamsData, teamsDataByName } = teams;
 
@@ -308,7 +301,7 @@ class App {
     switch (type) {
       case "standings":
         model.getStandingsData(leagueId, seasonId).then((standingsData) => {
-          caller.render({
+          ref.render({
             standingsData,
             teamsData,
           });
@@ -316,7 +309,7 @@ class App {
         break;
       case "matchResults":
         model.getMatchResultsData(leagueId, seasonId).then((matchesData) => {
-          caller.render({
+          ref.render({
             matchesData,
             teamsDataByName,
           });
@@ -324,7 +317,7 @@ class App {
         break;
       case "matchUpcoming":
         model.getMatchUpcomingData(leagueId, seasonId).then((matchesData) => {
-          caller.render({
+          ref.render({
             matchesData,
             teamsDataByName,
           });
@@ -332,7 +325,7 @@ class App {
         break;
       case "topScorers":
         model.getTopScorersData(leagueId, seasonId).then((topScorersData) => {
-          caller.render({
+          ref.render({
             topScorersData,
             teamsDataByName,
           });
@@ -340,7 +333,7 @@ class App {
         break;
       case "teamStanding":
         model.getStandingsData(leagueId, seasonId).then((standingsData) => {
-          caller.render({
+          ref.render({
             standingsData,
             teamsData,
             teamId,
@@ -353,7 +346,7 @@ class App {
           .then((matchesData) => {
             // get first one
             const [nextMatchData] = matchesData;
-            caller.render({
+            ref.render({
               nextMatchData,
               teamCode,
               teamsDataByName,
@@ -364,7 +357,7 @@ class App {
         model
           .getMatchResultsData(leagueId, seasonId, true, teamCode)
           .then((matchesData) => {
-            caller.render({
+            ref.render({
               matchesData,
               teamCode,
               teamsDataByName,
@@ -523,7 +516,7 @@ class App {
 
     if (isAdded) {
       this.state.custom = this.state.custom.concat([content]);
-      this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
+      this.mainContainer.mainContent.toggleAddBtn({ type, isAdded: true });
     }
     // find index
     else {
@@ -536,7 +529,7 @@ class App {
       this.state.custom = this.state.custom
         .slice(0, index)
         .concat(this.state.custom.slice(index + 1));
-      this.mainContainer.content.toggleAddBtn({ type, isAdded: false });
+      this.mainContainer.mainContent.toggleAddBtn({ type, isAdded: false });
     }
 
     // prettier-ignore
@@ -557,15 +550,15 @@ class App {
     // reset controller
     this.state.isEditing = isEditing;
     this.state.selectedEl = new Map();
-    this.mainContainer.content.toggleCheckboxAll({ isSelect: false });
+    this.mainContainer.mainContent.toggleCheckboxAll({ isSelect: false });
 
     if (isEditing) {
-      this.mainContainer.content.activateEditMode();
+      this.mainContainer.mainContent.activateEditMode();
       this.sidebar.activateEditMode();
     }
     // done editing
     else {
-      this.mainContainer.content.endEditMode();
+      this.mainContainer.mainContent.endEditMode();
       this.sidebar.endEditMode();
 
       // reset custom
@@ -590,7 +583,7 @@ class App {
     if (!this.state.selectedEl.size && type !== "select") return;
     switch (type) {
       case "select":
-        this.mainContainer.content.toggleCheckboxAll({ isSelect });
+        this.mainContainer.mainContent.toggleCheckboxAll({ isSelect });
         break;
       case "left":
         this.state.selectedEl.forEach((_, el) => {
@@ -648,7 +641,7 @@ class App {
     }
 
     contentsToToggle.forEach((type) => {
-      this.mainContainer.content.toggleAddBtn({ type, isAdded: true });
+      this.mainContainer.mainContent.toggleAddBtn({ type, isAdded: true });
     });
   }
 

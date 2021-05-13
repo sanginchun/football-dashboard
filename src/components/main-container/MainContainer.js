@@ -24,7 +24,7 @@ class MainContainer {
       onClickController,
     });
 
-    this.content = new MainContent({
+    this.mainContent = new MainContent({
       $target: this.mainContainer,
       onClickLeague,
       onClickTeam,
