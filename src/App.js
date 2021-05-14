@@ -483,10 +483,14 @@ class App {
     // set user nav ui
     this.sidebar.userNav.renderSignInBtn();
 
-    // set custom
+    // toggle add buttons
+    this.state.custom.forEach((key) =>
+      this.mainContainer.mainContent.toggleAddBtn(key)
+    );
+
+    // reset custom
     this.state.custom = [];
 
-    this.route(window.location.pathname);
     this.mainContainer.spinner.toggle();
   }
 
