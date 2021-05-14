@@ -4,12 +4,8 @@ import Checkbox from "../checkbox/Checkbox";
 import Spinner from "../../../spinner/Spinner";
 
 class TeamStanding {
-  constructor({ $target, isCustom, title, dataset }) {
-    this.titleSpan = title;
-    this.teamStanding = this._template();
-    Object.keys(dataset).forEach(
-      (key) => (this.teamStanding.dataset[key] = dataset[key])
-    );
+  constructor({ $target, isCustom, title, dataParams }) {
+    this.teamStanding = this._template(title, dataParams);
 
     const controlButton = isCustom ? Checkbox() : AddButton();
     this.teamStanding.querySelector(".header").appendChild(controlButton);
@@ -22,16 +18,17 @@ class TeamStanding {
     $target.appendChild(this.teamStanding);
   }
 
-  _template() {
+  _template(title, dataParams) {
     const article = document.createElement("article");
     article.className = "card half team-standing";
     article.setAttribute("data-type", "teamStanding");
+    Object.keys(dataParams).forEach(
+      (key) => (article.dataset[key] = dataParams[key])
+    );
 
     article.innerHTML = `
       <div class="header">
-        <h3 class="title">Standing${
-          this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
-        }</h3>
+        <h3 class="title">Standing${title ? `<span>${title}</span>` : ``}</h3>
       </div>
       <div class="body"></div>
     `;

@@ -5,13 +5,9 @@ import Checkbox from "../checkbox/Checkbox";
 import { DatePicker } from "../date-picker/DatePicker";
 
 class Matches {
-  constructor({ $target, isCustom, type, title, dataset }) {
-    this.titleSpan = title;
+  constructor({ $target, isCustom, type, title, dataParams }) {
     this.type = type;
-    this.matches = this._template();
-    Object.keys(dataset).forEach(
-      (key) => (this.matches.dataset[key] = dataset[key])
-    );
+    this.matches = this._template(title, dataParams);
 
     const controlButton = isCustom ? Checkbox() : AddButton();
     this.matches.querySelector(".header").appendChild(controlButton);
@@ -24,15 +20,18 @@ class Matches {
     $target.appendChild(this.matches);
   }
 
-  _template() {
+  _template(title, dataParams) {
     const article = document.createElement("article");
     article.className = `card half matches ${this.type.toLowerCase()}`;
     article.setAttribute("data-type", `match${this.type}`);
+    Object.keys(dataParams).forEach((key) => {
+      if (dataParams[key]) article.dataset[key] = dataParams[key];
+    });
 
     article.innerHTML = `
       <div class="header">
         <h3 class="title">${this.type}${
-      this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
+      title ? `<span>${title}</span>` : ``
     }</h3>
       </div>
       <div class="body"></div>

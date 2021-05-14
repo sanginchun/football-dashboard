@@ -4,6 +4,7 @@ import { api } from "./api/api.js";
 import { model } from "./model.js";
 import SideBar from "./components/sidebar/SideBar";
 import MainContainer from "./components/main-container/MainContainer";
+import { getKey } from "./others/helper";
 
 // page contents
 const LEAGUE_PAGE = [
@@ -161,7 +162,9 @@ class App {
       this.mainContainer.mainContent.renderLeaguePagePlaceholder(dataParams);
 
       // toggle add buttons
-      this.toggleAddedContentAddBtns({ leagueId });
+      this.state.custom.forEach((key) =>
+        this.mainContainer.mainContent.toggleAddBtn(key)
+      );
 
       // get teams data
       const teams = await this.getTeamsDataInAdvance(dataParams);
@@ -211,7 +214,9 @@ class App {
       this.mainContainer.mainContent.renderTeamPagePlaceholder(dataParams);
 
       // toggle add buttons
-      this.toggleAddedContentAddBtns({ teamId });
+      this.state.custom.forEach((key) =>
+        this.mainContainer.mainContent.toggleAddBtn(key)
+      );
 
       // get teams data
       const teams = await this.getTeamsDataInAdvance(dataParams);
@@ -255,13 +260,20 @@ class App {
         return;
       }
 
+      const customData = this.state.custom.map((key) => {
+        const [type, title, leagueId, seasonId, teamId, teamCode] =
+          key.split("-");
+
+        return { type, title, leagueId, seasonId, teamId, teamCode };
+      });
+
       const contentRefs =
         this.mainContainer.mainContent.renderCustomPagePlaceholder({
-          contents: this.state.custom.slice(),
+          customData,
         });
 
       const markLeagueId = {};
-      const uniqueDataParams = this.state.custom.filter(({ leagueId }) => {
+      const uniqueDataParams = customData.filter(({ leagueId }) => {
         if (markLeagueId[leagueId]) return false;
         else {
           markLeagueId[leagueId] = true;
@@ -279,7 +291,7 @@ class App {
       );
 
       contentRefs.forEach(async (ref, i) => {
-        const { type, ...dataParams } = this.state.custom[i];
+        const { type, ...dataParams } = customData[i];
         this.renderContent({
           type,
           ref,
@@ -452,7 +464,9 @@ class App {
           for (const [key, value] of params) dataParams[key] = value;
 
           // toggle add buttons
-          this.toggleAddedContentAddBtns(dataParams);
+          this.state.custom.forEach((key) =>
+            this.mainContainer.mainContent.toggleAddBtn(key)
+          );
           break;
       }
     })
@@ -501,36 +515,17 @@ class App {
   }
 
   /* custom edit buttons */
-  handleClickAddBtn({
-    type,
-    leagueId,
-    seasonId,
-    teamId,
-    teamCode,
-    title,
-    isAdded,
-  }) {
-    const content = teamId
-      ? { type, leagueId, seasonId, teamId, teamCode, title }
-      : { type, leagueId, seasonId, title };
+  handleClickAddBtn(key) {
+    const index = this.state.custom.findIndex((v) => v === key);
+    const nextCustom = [...this.state.custom];
 
-    if (isAdded) {
-      this.state.custom = this.state.custom.concat([content]);
-      this.mainContainer.mainContent.toggleAddBtn({ type, isAdded: true });
-    }
-    // find index
+    if (index === -1) nextCustom.push(key);
     else {
-      const index = this.state.custom.findIndex((val) => {
-        return (
-          (teamId && val.teamId === teamId && val.type === type) ||
-          (!teamId && val.leagueId === leagueId && val.type === type)
-        );
-      });
-      this.state.custom = this.state.custom
-        .slice(0, index)
-        .concat(this.state.custom.slice(index + 1));
-      this.mainContainer.mainContent.toggleAddBtn({ type, isAdded: false });
+      nextCustom.splice(index, 1);
     }
+
+    this.state.custom = [...nextCustom];
+    this.mainContainer.mainContent.toggleAddBtn(key);
 
     // prettier-ignore
     if (this.state.user) firebase.database().ref(`users/${this.state.user.uid}/custom`).set(JSON.stringify(this.state.custom));
@@ -562,15 +557,18 @@ class App {
       this.sidebar.endEditMode();
 
       // reset custom
-      this.state.custom = [];
-      document.querySelectorAll(".card").forEach((card) => {
-        const { type, leagueId, seasonId, teamId, teamCode } = card.dataset;
+      this.state.custom = document.querySelectorAll(".card").map((card) => {
         const title = card.querySelector(".title span").textContent;
-        const content = teamId
-          ? { type, leagueId, seasonId, teamId, teamCode, title }
-          : { type, leagueId, seasonId, title };
+        const { type, leagueId, seasonId, teamId, teamCode } = card.dataset;
 
-        this.state.custom.push(content);
+        return getKey({
+          type,
+          title,
+          leagueId,
+          seasonId,
+          teamId,
+          teamCode,
+        });
       });
 
       // prettier-ignore
@@ -615,34 +613,6 @@ class App {
         }
         break;
     }
-  }
-
-  /* toggle buttons by state */
-  toggleAddedContentAddBtns({ leagueId, teamId }) {
-    let contentsToToggle;
-
-    // current page: league
-    if (!teamId) {
-      contentsToToggle = this.state.custom
-        .map((content) => {
-          const { type, leagueId: _leagueId, teamId: _teamId } = content;
-          if (!_teamId && _leagueId === leagueId) return type;
-        })
-        .filter((t) => t);
-    }
-    // current page: team
-    else {
-      contentsToToggle = this.state.custom
-        .map((content) => {
-          const { type, teamId: _teamId } = content;
-          if (_teamId && _teamId === teamId) return type;
-        })
-        .filter((t) => t);
-    }
-
-    contentsToToggle.forEach((type) => {
-      this.mainContainer.mainContent.toggleAddBtn({ type, isAdded: true });
-    });
   }
 
   /* handle error */

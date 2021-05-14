@@ -5,6 +5,7 @@ import TopScorers from "./top-scorers/TopScorers";
 import TeamStanding from "./team-standing/TeamStanding";
 import NextMatch from "./next-match/NextMatch";
 import Form from "./form/Form";
+import { getKey } from "../../../others/helper";
 
 class MainContent {
   constructor({
@@ -33,19 +34,12 @@ class MainContent {
 
       // get content info
       const title = document.querySelector(".main-header .title").textContent;
-      const { type, leagueId, seasonId, teamId, teamCode } = e.target.closest(
-        ".card"
-      ).dataset;
+      const { type, leagueId, seasonId, teamId, teamCode } =
+        e.target.closest(".card").dataset;
 
-      onClickAddBtn({
-        type,
-        leagueId,
-        seasonId,
-        teamId,
-        teamCode,
-        title,
-        isAdded: !e.target.classList.contains("added"),
-      });
+      const key = getKey({ type, title, leagueId, seasonId, teamId, teamCode });
+
+      onClickAddBtn(key);
     });
 
     // on click checkbox
@@ -63,9 +57,8 @@ class MainContent {
       if (!e.target.closest(".title span")) return;
 
       // get content info
-      const { leagueId, seasonId, teamId, teamCode } = e.target.closest(
-        ".card"
-      ).dataset;
+      const { leagueId, seasonId, teamId, teamCode } =
+        e.target.closest(".card").dataset;
 
       teamId
         ? onClickTeam({ leagueId, seasonId, teamId, teamCode })
@@ -98,7 +91,7 @@ class MainContent {
     return section;
   }
 
-  renderLeaguePagePlaceholder({ leagueId, seasonId }) {
+  renderLeaguePagePlaceholder(dataParams) {
     // clear
     this.content.innerHTML = "";
 
@@ -106,31 +99,31 @@ class MainContent {
     this.standings = new Standings({
       $target: this.content,
       isCustom: false,
-      dataset: { leagueId, seasonId },
+      dataParams,
     });
 
     this.matchResults = new Matches({
       $target: this.content,
       isCustom: false,
       type: "Results",
-      dataset: { leagueId, seasonId },
+      dataParams,
     });
 
     this.matchUpcoming = new Matches({
       $target: this.content,
       isCustom: false,
       type: "Upcoming",
-      dataset: { leagueId, seasonId },
+      dataParams,
     });
 
     this.topScorers = new TopScorers({
       $target: this.content,
       isCustom: false,
-      dataset: { leagueId, seasonId },
+      dataParams,
     });
   }
 
-  renderTeamPagePlaceholder({ leagueId, seasonId, teamId, teamCode }) {
+  renderTeamPagePlaceholder(dataParams) {
     // clear
     this.content.innerHTML = "";
 
@@ -138,44 +131,45 @@ class MainContent {
     this.teamStanding = new TeamStanding({
       $target: this.content,
       isCustom: false,
-      dataset: { leagueId, seasonId, teamId, teamCode },
+      dataParams,
     });
 
     this.nextMatch = new NextMatch({
       $target: this.content,
       isCustom: false,
-      dataset: { leagueId, seasonId, teamId, teamCode },
+      dataParams,
     });
 
     this.form = new Form({
       $target: this.content,
       isCustom: false,
-      dataset: { leagueId, seasonId, teamId, teamCode },
+      dataParams,
     });
   }
 
-  renderCustomPagePlaceholder({ contents }) {
+  renderCustomPagePlaceholder({ customData }) {
     // clear
     this.content.innerHTML = "";
 
     // prettier-ignore
-    return contents.map((content) => {
-      const { type: contentType, title, ...dataset } = content;
-      switch (contentType) {
+    return customData.map((data) => {
+      const { type, title, ...dataParams } = data;
+
+      switch (type) {
         case "standings":
-          return new Standings({$target: this.content, isCustom: true, title, dataset});
+          return new Standings({$target: this.content, isCustom: true, title, dataParams});
         case "matchResults":
-          return new Matches({$target: this.content, isCustom: true, type: "Results", title, dataset});
+          return new Matches({$target: this.content, isCustom: true, type: "Results", title, dataParams});
         case "matchUpcoming":
-          return new Matches({$target: this.content, isCustom: true, type: "Upcoming", title, dataset});
+          return new Matches({$target: this.content, isCustom: true, type: "Upcoming", title, dataParams});
         case "topScorers":
-          return new TopScorers({$target: this.content, isCustom: true, title, dataset});
+          return new TopScorers({$target: this.content, isCustom: true, title, dataParams});
         case "teamStanding":
-          return new TeamStanding({$target: this.content, isCustom: true, title, dataset});
+          return new TeamStanding({$target: this.content, isCustom: true, title, dataParams});
         case "nextMatch":
-          return new NextMatch({$target: this.content, isCustom: true, title, dataset});
+          return new NextMatch({$target: this.content, isCustom: true, title, dataParams});
         case "form":
-          return new Form({$target: this.content, isCustom: true, title, dataset});
+          return new Form({$target: this.content, isCustom: true, title, dataParams});
       }
     });
   }
@@ -208,12 +202,18 @@ class MainContent {
     this.content.style = "";
   }
 
-  toggleAddBtn({ type, isAdded }) {
-    const target = this.content.querySelector(
-      `.card[data-type="${type}"] .btn-add`
-    );
-    target.classList.toggle("added");
-    target.textContent = isAdded ? "Undo" : "Add";
+  toggleAddBtn(currentKey) {
+    this.content.querySelectorAll(".card").forEach((el) => {
+      const title = document.querySelector(".main-header .title").textContent;
+      const { type, leagueId, seasonId, teamId, teamCode } = el.dataset;
+      const key = getKey({ type, title, leagueId, seasonId, teamId, teamCode });
+
+      if (key === currentKey) {
+        const btnEl = el.querySelector(".btn-add");
+        btnEl.classList.toggle("added");
+        btnEl.textContent = btnEl.classList.contains("added") ? "Undo" : "Add";
+      }
+    });
   }
 
   toggleCheckboxAll({ isSelect }) {

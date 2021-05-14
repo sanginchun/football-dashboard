@@ -5,12 +5,8 @@ import Checkbox from "../checkbox/Checkbox";
 import { formatDate } from "../../../../others/helper.js";
 
 class Form {
-  constructor({ $target, isCustom, dataset, title }) {
-    this.titleSpan = title;
-    this.form = this._template();
-    Object.keys(dataset).forEach(
-      (key) => (this.form.dataset[key] = dataset[key])
-    );
+  constructor({ $target, isCustom, title, dataParams }) {
+    this.form = this._template(title, dataParams);
 
     const controlButton = isCustom ? Checkbox() : AddButton();
     this.form.querySelector(".header").appendChild(controlButton);
@@ -23,16 +19,17 @@ class Form {
     $target.appendChild(this.form);
   }
 
-  _template() {
+  _template(title, dataParams) {
     const article = document.createElement("article");
     article.className = "card full form";
     article.setAttribute("data-type", "form");
+    Object.keys(dataParams).forEach(
+      (key) => (article.dataset[key] = dataParams[key])
+    );
 
     article.innerHTML = `
       <div class="header">
-        <h3 class="title">Form${
-          this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
-        }</h3>
+        <h3 class="title">Form${title ? `<span>${title}</span>` : ``}</h3>
       </div>
       <div class="body"></div>
     `;

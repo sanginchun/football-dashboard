@@ -5,12 +5,8 @@ import Spinner from "../../../spinner/Spinner";
 import { formatName } from "../../../../others/helper.js";
 
 class TopScorers {
-  constructor({ $target, isCustom, title, dataset }) {
-    this.titleSpan = title;
-    this.topScorers = this._template();
-    Object.keys(dataset).forEach(
-      (key) => (this.topScorers.dataset[key] = dataset[key])
-    );
+  constructor({ $target, isCustom, title, dataParams }) {
+    this.topScorers = this._template(title, dataParams);
 
     const controlButton = isCustom ? Checkbox() : AddButton();
     this.topScorers.querySelector(".header").appendChild(controlButton);
@@ -23,15 +19,18 @@ class TopScorers {
     $target.appendChild(this.topScorers);
   }
 
-  _template() {
+  _template(title, dataParams) {
     const article = document.createElement("article");
     article.className = `card half top-scorers`;
     article.setAttribute("data-type", `topScorers`);
+    Object.keys(dataParams).forEach((key) => {
+      if (dataParams[key]) article.dataset[key] = dataParams[key];
+    });
 
     article.innerHTML = `
       <div class="header">
         <h3 class="title">Top Scorers${
-          this.titleSpan ? `<span>${this.titleSpan}</span>` : ``
+          title ? `<span>${title}</span>` : ``
         }</h3>
       </div>
       <div class="body"></div>

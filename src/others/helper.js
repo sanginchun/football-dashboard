@@ -39,3 +39,11 @@ export const formatDate = function (dateStr) {
     .format(date)
     .split(", ");
 };
+
+export const getKey = function (dataParams) {
+  const { type, title, leagueId, seasonId, teamId, teamCode } = dataParams;
+
+  return `${type}-${title}-${leagueId}-${seasonId}-${teamId || ""}-${
+    teamCode || ""
+  }`;
+};
