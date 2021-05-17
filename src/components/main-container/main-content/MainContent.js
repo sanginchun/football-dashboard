@@ -34,10 +34,8 @@ class MainContent {
 
       // get content info
       const title = document.querySelector(".main-header .title").textContent;
-      const { type, leagueId, seasonId, teamId, teamCode } =
-        e.target.closest(".card").dataset;
 
-      const key = getKey({ type, title, leagueId, seasonId, teamId, teamCode });
+      const key = getKey({ title, ...e.target.closest(".card").dataset });
 
       onClickAddBtn(key);
     });
@@ -202,13 +200,11 @@ class MainContent {
     this.content.style = "";
   }
 
-  toggleAddBtn(currentKey) {
+  toggleAddBtn(key) {
     this.content.querySelectorAll(".card").forEach((el) => {
       const title = document.querySelector(".main-header .title").textContent;
-      const { type, leagueId, seasonId, teamId, teamCode } = el.dataset;
-      const key = getKey({ type, title, leagueId, seasonId, teamId, teamCode });
 
-      if (key === currentKey) {
+      if (key === getKey({ title, ...el.dataset })) {
         const btnEl = el.querySelector(".btn-add");
         btnEl.classList.toggle("added");
         btnEl.textContent = btnEl.classList.contains("added") ? "Undo" : "Add";

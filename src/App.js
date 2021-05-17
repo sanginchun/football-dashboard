@@ -561,19 +561,21 @@ class App {
       this.sidebar.endEditMode();
 
       // reset custom
-      this.state.custom = document.querySelectorAll(".card").map((card) => {
-        const title = card.querySelector(".title span").textContent;
-        const { type, leagueId, seasonId, teamId, teamCode } = card.dataset;
+      this.state.custom = Array.from(document.querySelectorAll(".card")).map(
+        (card) => {
+          const title = card.querySelector(".title span").textContent;
+          const { type, leagueId, seasonId, teamId, teamCode } = card.dataset;
 
-        return getKey({
-          type,
-          title,
-          leagueId,
-          seasonId,
-          teamId,
-          teamCode,
-        });
-      });
+          return getKey({
+            type,
+            title,
+            leagueId,
+            seasonId,
+            teamId,
+            teamCode,
+          });
+        }
+      );
 
       // prettier-ignore
       if (this.state.user) firebase.database().ref(`users/${this.state.user.uid}/custom`).set(JSON.stringify(this.state.custom));
