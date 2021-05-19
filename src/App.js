@@ -48,9 +48,9 @@ class App {
     });
 
     // handle pop state
-    window.addEventListener("popstate", (e) => {
-      this.handlePopState(e);
-    });
+    window.addEventListener("popstate", () =>
+      this.route(window.location.pathname)
+    );
 
     // add login functionality
     this.addUserAuth();
@@ -72,7 +72,8 @@ class App {
       this.sidebar.mainNav.spinner.toggle();
 
       // load content
-      this.route(window.location.pathname);
+      if (window.location.pathname !== "/")
+        this.route(window.location.pathname);
     } catch (err) {
       this.handleError(err);
     }
@@ -90,8 +91,6 @@ class App {
   /* router */
   route(pathname) {
     switch (pathname) {
-      case "/":
-        break;
       case "/custom":
         this.handleClickCustom(false);
         break;
@@ -107,17 +106,6 @@ class App {
         break;
       default:
         window.location = window.location.origin;
-    }
-  }
-
-  handlePopState({ state }) {
-    if (state) {
-      if (state.hasOwnProperty("custom")) this.handleClickCustom(false);
-      else if (state.hasOwnProperty("teamId"))
-        this.handleClickTeam(state, false);
-      else this.handleClickLeague(state, false);
-    } else {
-      window.location = window.location.origin;
     }
   }
 
@@ -147,7 +135,7 @@ class App {
       // push state
       if (pushState)
         window.history.pushState(
-          dataParams,
+          null,
           "",
           `/league?leagueId=${leagueId}&seasonId=${seasonId}`
         );
@@ -199,7 +187,7 @@ class App {
       // push state
       if (pushState)
         window.history.pushState(
-          dataParams,
+          null,
           "",
           `/team?leagueId=${leagueId}&seasonId=${seasonId}&teamId=${teamId}&teamCode=${teamCode}`
         );
@@ -242,7 +230,7 @@ class App {
 
   async handleClickCustom(pushState = true) {
     try {
-      if (pushState) window.history.pushState({ custom: true }, "", `/custom`);
+      if (pushState) window.history.pushState(null, "", `/custom`);
       window.scroll(0, 0);
 
       this.mainContainer.header.renderTitle(
