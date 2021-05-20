@@ -1,5 +1,5 @@
 import "./App.css";
-import firebase from "./others/firebase";
+import { userAuth, database } from "./others/user";
 import { api } from "./api/api.js";
 import { model } from "./model.js";
 import SideBar from "./components/sidebar/SideBar";
@@ -48,12 +48,14 @@ class App {
     });
 
     // handle pop state
-    window.addEventListener("popstate", () =>
-      this.route(window.location.pathname)
-    );
+    window.addEventListener("popstate", () => this.route());
 
-    // add login functionality
-    this.addUserAuth();
+    // add user state change handler
+    userAuth.addAuthStateChangeHandler({
+      onSignedIn: this.handleUserSignIn.bind(this),
+      onSignedOut: this.handleUserSignedOut.bind(this),
+    });
+
     this.mainContainer.spinner.toggle();
 
     this.init();
@@ -72,8 +74,7 @@ class App {
       this.sidebar.mainNav.spinner.toggle();
 
       // load content
-      if (window.location.pathname !== "/")
-        this.route(window.location.pathname);
+      if (window.location.pathname !== "/") this.route();
     } catch (err) {
       this.handleError(err);
     }
@@ -89,7 +90,8 @@ class App {
   }
 
   /* router */
-  route(pathname) {
+  route() {
+    const pathname = window.location.pathname;
     switch (pathname) {
       case "/custom":
         this.handleClickCustom(false);
@@ -368,142 +370,107 @@ class App {
   }
 
   /* Auth */
-  addUserAuth() {
-    this.authProvider = new firebase.auth.GoogleAuthProvider();
-    this.authProvider.setCustomParameters({
-      prompt: "select_account",
-    });
-
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) this.handleUserSignIn(user);
-      else this.handleNotUser();
-    });
-  }
-
-  // prettier-ignore
   handleClickSignIn() {
+    // keep custom
     localStorage.setItem("custom", JSON.stringify(this.state.custom));
-    firebase.auth().signInWithRedirect(this.authProvider)
-    .catch((error) => {
-      console.log(error);
-    });
+
+    userAuth.signIn().catch((err) => window.alert("로그인 실패"));
   }
 
-  // prettier-ignore
   handleClickSignOut() {
-    firebase.auth().signOut()
-    .catch((error) => {
-      console.log(error);
-    })
-    .finally(() => {
-      this.mainContainer.spinner.toggle();
-    });
+    userAuth
+      .signOut()
+      .catch((err) => console.log(err))
+      .finally(() => this.mainContainer.spinner.toggle());
   }
 
-  handleUserSignIn(user) {
-    // set user
-    this.state.user = user;
+  async handleUserSignIn(user) {
+    try {
+      // set user
+      this.state.user = user;
+      const uid = this.state.user.uid;
 
-    // set user nav ui
-    this.sidebar.userNav.renderUserUi({
-      photoURL: user.photoURL,
-    });
+      // set user nav ui
+      this.sidebar.userNav.renderUserUi({
+        photoURL: user.photoURL,
+      });
 
-    // set custom
-    // prettier-ignore
-    firebase.database().ref(`users/${this.state.user.uid}/custom`).get()
-    .then((snapshot) => {
-      let userCustom;
-      if (snapshot.exists()) userCustom = JSON.parse(snapshot.val());
-      else userCustom = [];
-      this.state.custom = JSON.parse(localStorage.getItem("custom")) || [];
+      // get custom from database
+      const userCustom = await database.get({
+        uid,
+        path: "custom",
+      });
+
+      // get custom from localStorage (saved before sign in)
+      const localCustom = JSON.parse(localStorage.getItem("custom")) || [];
+
+      let shouldUpdateDatabase = false;
 
       // both exists
-      if (this.state.custom.length && userCustom.length) {
+      if (localCustom.length && userCustom.length) {
         // ask user
-        if(confirm("You already have a custom page saved in your account.\n\nWould you like to change it to the current one?"))
-          firebase.database().ref(`users/${this.state.user.uid}/custom`).set(JSON.stringify(this.state.custom));
-        else {
-          this.state.custom = userCustom.slice();
-        }
+        const isConfirmed = window.confirm(
+          "You already have a custom page saved in your account.\n\nWould you like to update?"
+        );
+
+        shouldUpdateDatabase = isConfirmed;
+        this.state.custom = isConfirmed ? [...localCustom] : [...userCustom];
       }
-      // only state
-      else if (this.state.custom.length && !userCustom.length) {
-        // update user custom
-        firebase.database().ref(`users/${this.state.user.uid}/custom`).set(JSON.stringify(this.state.custom));
+      // only local
+      else if (localCustom.length && !userCustom.length) {
+        shouldUpdateDatabase = true;
+        this.state.custom = [...localCustom];
       }
       // only user
       else if (!this.state.custom.length && userCustom.length) {
-        // update state
-        this.state.custom = userCustom.slice();
+        this.state.custom = [...userCustom];
       }
+      // both not exist, do nothing
 
-      const pathname = window.location.pathname;
-      switch(pathname) {
-        case "/":
-          break;
-        case "/custom": // reload contents
-          this.handleClickCustom(false);
-          break;
-        case "/league":
-        case "/team":
-          const dataParams = {};
-          const params = new URLSearchParams(window.location.search.slice(1));
-          for (const [key, value] of params) dataParams[key] = value;
+      // set database
+      if (shouldUpdateDatabase)
+        database.set({
+          uid,
+          path: "custom",
+          data: JSON.stringify(this.state.custom),
+        });
 
-          // toggle add buttons
-          this.state.custom.forEach((key) =>
-            this.mainContainer.mainContent.toggleAddBtn(key)
-          );
-          break;
-      }
-    })
-    .finally(() => {
-      localStorage.removeItem("custom");
       this.mainContainer.spinner.toggle();
-    });
+
+      if (window.location.pathname !== "/") this.route();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      localStorage.removeItem("custom");
+    }
   }
 
-  handleNotUser() {
-    // set user
+  handleUserSignedOut() {
+    // reset
     this.state.user = null;
+    this.state.custom = [];
 
     // set user nav ui
     this.sidebar.userNav.renderSignInBtn();
 
-    // toggle add buttons
-    this.state.custom.forEach((key) =>
-      this.mainContainer.mainContent.toggleAddBtn(key)
-    );
-
-    // reset custom
-    this.state.custom = [];
-
     this.mainContainer.spinner.toggle();
+
+    if (window.location.pathname !== "/") this.route();
   }
 
   handleClickDeleteAccount() {
-    const isConfirmed = confirm("Are you sure to delete account?");
+    this.mainContainer.spinner.toggle();
 
-    // prettier-ignore
+    const isConfirmed = window.confirm("Are you sure to delete account?");
+    const MESSAGE = "Thank you for using Football Dashboard.";
+
     if (isConfirmed) {
-      this.state.user.delete()
-      .catch((err) => {
-        if (err.code === "auth/requires-recent-login") {
-          this.state.user.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider())
-          .then((result) => {
-            return result.user.delete();
-          })
-        }
-      })
-      .finally(() => {
-        firebase.database().ref(`users/${this.state.user.uid}`).remove().then(() => {
-          this.state.user = null;
-          alert("Your account has been deleted.\n\nThank you for using Football Dashboard.\n");
-          this.mainContainer.spinner.toggle();
-        });
-      });
-    }
+      userAuth
+        .deleteAccount(this.state.user)
+        .then(() => database.remove({ uid: this.state.user.uid }))
+        .then(() => alert(MESSAGE))
+        .catch((err) => console.log(err));
+    } else this.mainContainer.spinner.toggle();
   }
 
   /* custom edit buttons */
@@ -520,7 +487,8 @@ class App {
     this.mainContainer.mainContent.toggleAddBtn(key);
 
     // prettier-ignore
-    if (this.state.user) firebase.database().ref(`users/${this.state.user.uid}/custom`).set(JSON.stringify(this.state.custom));
+    if (this.state.user)
+      database.set({ uid: this.state.user.uid, path: "custom", data: JSON.stringify(this.state.custom)})
   }
 
   handleClickCheckbox({ targetEl, isSelected }) {
@@ -566,7 +534,7 @@ class App {
       );
 
       // prettier-ignore
-      if (this.state.user) firebase.database().ref(`users/${this.state.user.uid}/custom`).set(JSON.stringify(this.state.custom));
+      if (this.state.user) database.set({ uid: this.state.user.uid, path: "custom", data: JSON.stringify(this.state.custom)})
       if (!this.state.custom.length) this.handleClickCustom(false);
     }
   }
