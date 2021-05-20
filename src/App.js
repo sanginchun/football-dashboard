@@ -432,7 +432,7 @@ class App {
         database.set({
           uid,
           path: "custom",
-          data: JSON.stringify(this.state.custom),
+          data: [...this.state.custom],
         });
 
       this.mainContainer.spinner.toggle();
@@ -488,7 +488,7 @@ class App {
 
     // prettier-ignore
     if (this.state.user)
-      database.set({ uid: this.state.user.uid, path: "custom", data: JSON.stringify(this.state.custom)})
+      database.set({ uid: this.state.user.uid, path: "custom", data: [...this.state.custom]})
   }
 
   handleClickCheckbox({ targetEl, isSelected }) {
@@ -534,7 +534,7 @@ class App {
       );
 
       // prettier-ignore
-      if (this.state.user) database.set({ uid: this.state.user.uid, path: "custom", data: JSON.stringify(this.state.custom)})
+      if (this.state.user) database.set({ uid: this.state.user.uid, path: "custom", data: [...this.state.custom]})
       if (!this.state.custom.length) this.handleClickCustom(false);
     }
   }

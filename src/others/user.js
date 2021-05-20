@@ -34,7 +34,7 @@ export const database = {
       .ref(`users/${uid}/${path}`)
       .get();
 
-    return snapshot.exists() ? JSON.parse(snapshot.val()) : [];
+    return snapshot.exists() ? snapshot.val() : [];
   },
 
   set: ({ uid, path, data }) =>
