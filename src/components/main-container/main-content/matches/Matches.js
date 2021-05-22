@@ -45,28 +45,34 @@ class Matches {
     this.teamsData = Object.assign({}, teamsDataByName);
 
     // date picker
-    const uniqueDateArr = Array.from(
-      new Set(this.data.map((match) => match.match_start.split(" ")[0]))
-    );
+    if (this.data.length) {
+      const uniqueDateArr = Array.from(
+        new Set(this.data.map((match) => match.match_start.split(" ")[0]))
+      );
 
-    this.datePicker = DatePicker(
-      this.type === "Upcoming" ? uniqueDateArr : uniqueDateArr.reverse()
-    );
-    this.datePicker.addEventListener("change", (e) => {
-      const value = e.target.value;
+      this.datePicker = DatePicker(
+        this.type === "Upcoming" ? uniqueDateArr : uniqueDateArr.reverse()
+      );
+      this.datePicker.addEventListener("change", (e) => {
+        const value = e.target.value;
 
-      this.matches.querySelector(".body").innerHTML = "";
-      this.matches.querySelector(".body").appendChild(this._content(value));
-    });
+        this.matches.querySelector(".body").innerHTML = "";
+        this.matches.querySelector(".body").appendChild(this._content(value));
+      });
 
-    this.matches
-      .querySelector(".header .title")
-      .insertAdjacentElement("afterend", this.datePicker);
+      this.matches
+        .querySelector(".header .title")
+        .insertAdjacentElement("afterend", this.datePicker);
 
-    // initial data
-    this.matches
-      .querySelector(".body")
-      .appendChild(this._content(uniqueDateArr[0]));
+      // initial data
+      this.matches
+        .querySelector(".body")
+        .appendChild(this._content(uniqueDateArr[0]));
+    }
+    // when no match
+    else {
+      this.matches.querySelector(".body").appendChild(this._noMatches());
+    }
 
     this.spinner.toggle();
   }
@@ -129,6 +135,15 @@ class Matches {
     table.innerHTML = header + rows;
 
     return table;
+  }
+
+  // temp
+  _noMatches() {
+    const div = document.createElement("div");
+
+    div.innerHTML = "<h3>No Matches Available</h3>";
+
+    return div;
   }
 }
 
