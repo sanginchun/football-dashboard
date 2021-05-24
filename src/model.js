@@ -81,63 +81,77 @@ export const model = {
     isMonth = false,
     teamCode = null
   ) {
-    const matchesData = await api.getMatchResults(leagueId, seasonId, isMonth);
+    try {
+      const matchesData = await api.getMatchResults(
+        leagueId,
+        seasonId,
+        isMonth
+      );
 
-    // filter status
-    let filtered = matchesData.filter((match) => match.status === "finished");
+      // filter status
+      let filtered = matchesData.filter((match) => match.status === "finished");
 
-    // filter by team
-    if (teamCode) {
-      filtered = filtered.filter((match) => {
-        return (
-          match.home_team.short_code === teamCode ||
-          match.away_team.short_code === teamCode
-        );
-      });
+      // filter by team
+      if (teamCode) {
+        filtered = filtered.filter((match) => {
+          return (
+            match.home_team.short_code === teamCode ||
+            match.away_team.short_code === teamCode
+          );
+        });
+      }
+
+      // get local time & sort
+      const matchesSorted = filtered
+        .map((match) => {
+          const { match_start_iso } = match;
+          match.match_start = getLocalDate(match_start_iso);
+          return match;
+        })
+        .sort((a, b) => new Date(a.match_start) - new Date(b.match_start));
+
+      if (teamCode && matchesSorted.length > MAX_FORM_RESULTS) {
+        matchesSorted.splice(0, matchesSorted.length - MAX_FORM_RESULTS);
+      }
+
+      return matchesSorted;
+    } catch (err) {
+      if (err === 403) return [];
     }
-
-    // get local time & sort
-    const matchesSorted = filtered
-      .map((match) => {
-        const { match_start_iso } = match;
-        match.match_start = getLocalDate(match_start_iso);
-        return match;
-      })
-      .sort((a, b) => new Date(a.match_start) - new Date(b.match_start));
-
-    if (teamCode && matchesSorted.length > MAX_FORM_RESULTS) {
-      matchesSorted.splice(0, matchesSorted.length - MAX_FORM_RESULTS);
-    }
-
-    return matchesSorted;
   },
 
   async getMatchUpcomingData(leagueId, seasonId, teamCode = null) {
-    const matchesData = await api.getMatchUpcoming(leagueId, seasonId);
+    try {
+      const matchesData = await api.getMatchUpcoming(leagueId, seasonId);
 
-    // filter status
-    let filtered = matchesData.filter((match) => match.status === "notstarted");
+      // filter status
+      let filtered = matchesData.filter(
+        (match) => match.status === "notstarted"
+      );
 
-    // filter by team
-    if (teamCode) {
-      filtered = filtered.filter((match) => {
-        return (
-          match.home_team.short_code === teamCode ||
-          match.away_team.short_code === teamCode
-        );
-      });
+      // filter by team
+      if (teamCode) {
+        filtered = filtered.filter((match) => {
+          return (
+            match.home_team.short_code === teamCode ||
+            match.away_team.short_code === teamCode
+          );
+        });
+      }
+
+      // get local time & sort
+      const matchesSorted = filtered
+        .map((match) => {
+          const { match_start_iso } = match;
+          match.match_start = getLocalDate(match_start_iso);
+          return match;
+        })
+        .sort((a, b) => new Date(a.match_start) - new Date(b.match_start));
+
+      return matchesSorted;
+    } catch (err) {
+      if (err === 403) return [];
     }
-
-    // get local time & sort
-    const matchesSorted = filtered
-      .map((match) => {
-        const { match_start_iso } = match;
-        match.match_start = getLocalDate(match_start_iso);
-        return match;
-      })
-      .sort((a, b) => new Date(a.match_start) - new Date(b.match_start));
-
-    return matchesSorted;
   },
 
   async getTopScorersData(leagueId, seasonId) {
